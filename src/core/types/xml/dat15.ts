@@ -21,7 +21,11 @@ interface Scene {
 interface PatchItem {
   Category: string;
   Volume: XMLDataEntry<{ value: string | number }>;
+  Category: string;
+  Volume: XMLDataEntry<{ value: string | number }>;
   Unk03: XMLDataEntry<{ value: string | number }>;
+  LPFCutoff: XMLDataEntry<{ value: string | number }>;
+  HPFCutoff: XMLDataEntry<{ value: string | number }>;
   LPFCutoff: XMLDataEntry<{ value: string | number }>;
   HPFCutoff: XMLDataEntry<{ value: string | number }>;
   Unk06: XMLDataEntry<{ value: string | number }>;
