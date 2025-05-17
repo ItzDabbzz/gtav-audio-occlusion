@@ -9,11 +9,11 @@ export interface AmbientZoneListAudioGameData {
 }
 
 export interface InteriorAudioGameData {
-  $: { type: 'Interior'; ntOffset: string | number };
+  $: { type: 'InteriorSettings'; ntOffset: string | number };
   Name: string;
-  Unk0: XMLDataEntry<{ value: string }>;
-  Unk1: XMLDataEntry<{ value: string }>;
-  Unk2: XMLDataEntry<{ value: string }>;
+  Flags: XMLDataEntry<{ value: string }>;
+  InteriorWallaSoundSet: string;
+  InteriorReflections: string;
   Rooms: {
     Item: string[];
   };
@@ -85,22 +85,22 @@ export interface AmbientZoneAudioGameData {
 export interface InteriorRoomAudioGameData {
   $: { type: 'InteriorRoom'; ntOffset: string | number };
   Name: string;
-  Flags0: XMLDataEntry<{ value: string }>;
-  MloRoom: string;
-  Zone: string;
-  Unk02: XMLDataEntry<{ value: string | number }>;
-  Unk03: XMLDataEntry<{ value: string | number }>;
-  Reverb: XMLDataEntry<{ value: string | number }>;
-  Echo: XMLDataEntry<{ value: string | number }>;
-  Sound: string;
-  Unk07: XMLDataEntry<{ value: string | number }>;
-  Unk08: XMLDataEntry<{ value: string | number }>;
-  Unk09: XMLDataEntry<{ value: string | number }>;
-  Unk10: XMLDataEntry<{ value: string | number }>;
-  Unk11: XMLDataEntry<{ value: string | number }>;
-  Unk12: XMLDataEntry<{ value: string | number }>;
-  Unk13: string;
-  SoundSet: string;
+  Flags: XMLDataEntry<{ value: string }>;
+  RoomName: string;
+  AmbientZone: string;
+  InteriorType: XMLDataEntry<{ value: string | number }>;
+  ReverbSmall: XMLDataEntry<{ value: string | number }>;
+  ReverbMedium: XMLDataEntry<{ value: string | number }>;
+  ReverbLarge: XMLDataEntry<{ value: string | number }>;
+  RoomToneSound: string;
+  RainType: XMLDataEntry<{ value: string | number }>;
+  ExteriorAudibility: XMLDataEntry<{ value: string | number }>;
+  RoomOcclusionDamping: XMLDataEntry<{ value: string | number }>;
+  NonMarkedPortalOcclusion: XMLDataEntry<{ value: string | number }>;
+  DistanceFromPortalForOcclusion: XMLDataEntry<{ value: string | number }>;
+  DistanceFromPortalFadeDistance: XMLDataEntry<{ value: string | number }>;
+  WeaponMetrics: string;
+  InteriorWallaSoundSet: string;
 }
 
 export type AudioGameData = Array<

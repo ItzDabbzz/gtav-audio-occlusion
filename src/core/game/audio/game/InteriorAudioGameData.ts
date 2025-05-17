@@ -4,7 +4,7 @@ import { getInteriorRoomName } from '../utils';
 
 export class InteriorAudioGameData {
   public name: string;
-
+  public flags: number;
   public unk0: number;
   public unk1: number;
   public unk2: number;
