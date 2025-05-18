@@ -1,6 +1,6 @@
 {
   "name": "gtav-audio-occlusion",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "author": "https://github.com/pedr0fontoura",
   "description": "A tool for generating audio occlusion for V MLOs.",
   "main": "./.webpack/main",
