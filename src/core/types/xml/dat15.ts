@@ -21,13 +21,13 @@ interface Scene {
 interface PatchItem {
   Category: string;
   Volume: XMLDataEntry<{ value: string | number }>;
-  Unk03: XMLDataEntry<{ value: string | number }>;
+  VolumeInvert: XMLDataEntry<{ value: string | number }>;
   LPFCutoff: XMLDataEntry<{ value: string | number }>;
   HPFCutoff: XMLDataEntry<{ value: string | number }>;
-  Unk06: XMLDataEntry<{ value: string | number }>;
-  Unk07: XMLDataEntry<{ value: string | number }>;
-  Unk08: XMLDataEntry<{ value: string | number }>;
-  Unk09: XMLDataEntry<{ value: string | number }>;
+  Pitch: XMLDataEntry<{ value: string | number }>;
+  Frequency: XMLDataEntry<{ value: string | number }>;
+  PitchInvert: XMLDataEntry<{ value: string | number }>;
+  Rolloff: XMLDataEntry<{ value: string | number }>;
   Unk10: XMLDataEntry<{ value: string | number }>;
   Unk11: XMLDataEntry<{ value: string | number }>;
 }
@@ -46,7 +46,7 @@ interface Patch {
   ApplyFactorCurve: string;
   ApplyVariable: string;
   ApplySmoothRate: XMLDataEntry<{ value: string | number }>;
-  Patches: {
+  MixCategories: {
     Item: PatchItem[];
   };
 }
