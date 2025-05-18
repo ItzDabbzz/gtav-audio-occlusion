@@ -1,4 +1,5 @@
 export type SerializedInteriorAudioGameData = {
+  flags: number;
   name: string;
   unk0: number;
   unk1: number;

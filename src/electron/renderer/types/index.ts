@@ -1,4 +1,4 @@
-import { API } from '@/electron/bridge';
+import type { API } from '@/electron/bridge';
 
 declare global {
   interface Window {

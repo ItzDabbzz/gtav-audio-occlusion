@@ -1,3 +1,4 @@
+import { SerializedNaOcclusionPortalInfoMetadata } from '@/electron/common/types/naOcclusionInteriorMetadata';
 import { CMloPortalDef } from '../CMloPortalDef';
 
 import { naOcclusionInteriorMetadata } from './naOcclusionInteriorMetadata';
@@ -55,5 +56,20 @@ export class naOcclusionPortalInfoMetadata {
     this.portalEntityList = this.portal.attachedEntities.map(
       entity => new naOcclusionPortalEntityMetadata({ linkType: 1, entity: interior.archetype.getEntity(entity) }),
     );
+  }
+
+  /** JSON‐friendly shape */
+  public toSerializable(): SerializedNaOcclusionPortalInfoMetadata {
+    return {
+      enabled: this.enabled,
+      portalIndex: this.portalIndex,
+      infoIndex: this.infoIndex,
+      interiorProxyHash: this.interiorProxyHash,
+      portalIdx: this.portalIdx,
+      roomIdx: this.roomIdx,
+      destInteriorHash: this.destInteriorHash,
+      destRoomIdx: this.destRoomIdx,
+      portalEntityList: this.portalEntityList.map(pe => pe.toSerializable()),
+    };
   }
 }

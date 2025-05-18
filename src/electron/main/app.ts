@@ -35,8 +35,8 @@ export class Application {
     this.interiorManager = new InteriorManager(this);
 
     this.mainWindow = new BrowserWindow({
-      height: 700,
-      width: 1100,
+      height: 800,
+      width: 1200,
       title: 'gtav-audio-occlusion',
       backgroundColor: '#212121',
       autoHideMenuBar: true,

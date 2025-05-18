@@ -9,8 +9,8 @@ import { Settings } from '../features/settings';
 import { Rooms } from '../features/rooms';
 
 export enum RouteSidebarPosition {
-  Top,
-  Bottom,
+  Top = 0,
+  Bottom = 1,
 }
 
 const ROUTES_CONFIG = [

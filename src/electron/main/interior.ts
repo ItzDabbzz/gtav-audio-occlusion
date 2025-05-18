@@ -7,7 +7,7 @@ import {
   createInteriorAudioGameData,
   createInteriorRoomAudioGameDataList,
 } from '@/core';
-
+import { naOcclusionInteriorMetadata as NaMetaClass } from '@/core/game/audio';
 import { SerializedInterior } from '@/electron/common/types/interior';
 
 type InteriorConstructor = {
@@ -77,52 +77,60 @@ export class Interior {
   }
 
   public serialize(): SerializedInterior {
-    const {
-      identifier,
-      path,
-      mapDataFilePath,
-      mapTypesFilePath,
-      naOcclusionInteriorMetadata,
-      interiorAudioGameData,
-      interiorRoomAudioGameDataList,
-      naOcclusionInteriorMetadataPath,
-      audioGameDataPath,
-      audioMixDataPath,
-    } = this;
-
-    const { interiorProxyHash, portalInfoList } = naOcclusionInteriorMetadata;
-
     return {
-      identifier,
-      path,
-      mapDataFilePath,
-      mapTypesFilePath,
+      identifier: this.identifier,
+      path: this.path,
+      mapDataFilePath: this.mapDataFilePath,
+      mapTypesFilePath: this.mapTypesFilePath,
+
       naOcclusionInteriorMetadata: {
-        interiorProxyHash,
-        portalInfoList: portalInfoList.map(portalInfo => ({
-          enabled: portalInfo.enabled,
-          portalIndex: portalInfo.portalIndex,
-          infoIndex: portalInfo.infoIndex,
-          interiorProxyHash: portalInfo.interiorProxyHash,
-          portalIdx: portalInfo.portalIdx,
-          roomIdx: portalInfo.roomIdx,
-          destInteriorHash: portalInfo.destInteriorHash,
-          destRoomIdx: portalInfo.destRoomIdx,
-          portalEntityList: portalInfo.portalEntityList.map(portalEntity => ({
-            entityModelName: portalEntity.entity.archetypeName,
-            entityModelHashKey: portalEntity.entityModelHashKey,
-            linkType: portalEntity.linkType,
-            maxOcclusion: portalEntity.maxOcclusion,
-            isDoor: portalEntity.isDoor,
-            isGlass: portalEntity.isGlass,
-          })),
-        })),
+        interiorProxyHash: this.naOcclusionInteriorMetadata.interiorProxyHash,
+        portalInfoList: this.naOcclusionInteriorMetadata.portalInfoList.map(pi => {
+          // if it's a real class instance, call toSerializable()
+          if (typeof (pi as any).toSerializable === 'function') {
+            return (pi as any).toSerializable();
+          }
+          // else it's already the JSON shape, so just pass it through
+          return pi as any;
+        }),
       },
-      interiorAudioGameData,
-      interiorRoomAudioGameDataList,
-      naOcclusionInteriorMetadataPath,
-      audioGameDataPath,
-      audioMixDataPath
+
+      interiorAudioGameData: this.interiorAudioGameData,
+      interiorRoomAudioGameDataList: this.interiorRoomAudioGameDataList,
+      naOcclusionInteriorMetadataPath: this.naOcclusionInteriorMetadataPath,
+      audioGameDataPath: this.audioGameDataPath,
+      audioMixDataPath: this.audioMixDataPath,
     };
+  }
+
+  /**
+   * Re-hydrate a SerializedInterior back into an Interior
+   * without running the full constructor.
+   */
+  public static deserialize(data: SerializedInterior): Interior {
+    // 1) make a “blank” Interior
+    const interior = Object.create(Interior.prototype) as Interior;
+
+    // 2) copy over simple fields
+    interior.identifier = data.identifier;
+    interior.path = data.path;
+    interior.mapDataFilePath = data.mapDataFilePath;
+    interior.mapTypesFilePath = data.mapTypesFilePath;
+    interior.mapData = null;
+    interior.mapTypes = null;
+    interior.mloInstance = null;
+
+    // 3) fake the occlusion metadata
+    const fakeMeta = Object.create(NaMetaClass.prototype) as NaMetaClass;
+    fakeMeta.interiorProxyHash = data.naOcclusionInteriorMetadata.interiorProxyHash;
+    fakeMeta.portalInfoList = data.naOcclusionInteriorMetadata.portalInfoList as any;
+    interior.naOcclusionInteriorMetadata = fakeMeta;
+
+    // 6) restore any file‐path pointers
+    interior.naOcclusionInteriorMetadataPath = data.naOcclusionInteriorMetadataPath;
+    interior.audioGameDataPath = data.audioGameDataPath;
+    interior.audioMixDataPath = data.audioMixDataPath;
+
+    return interior;
   }
 }

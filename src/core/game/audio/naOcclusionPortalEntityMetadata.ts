@@ -1,3 +1,4 @@
+import { SerializedNaOcclusionPortalEntityMetadata } from '@/electron/common/types/naOcclusionInteriorMetadata';
 import { joaat } from '../../utils';
 
 import { CEntityDef } from '../CEntityDef';
@@ -42,5 +43,16 @@ export class naOcclusionPortalEntityMetadata {
     if (this.isGlass) {
       this.maxOcclusion = 0.4;
     }
+  }
+
+  public toSerializable(): SerializedNaOcclusionPortalEntityMetadata {
+    return {
+      entityModelName: this.entity.archetypeName,
+      entityModelHashKey: this.entityModelHashKey,
+      linkType: this.linkType,
+      maxOcclusion: this.maxOcclusion,
+      isDoor: this.isDoor,
+      isGlass: this.isGlass,
+    };
   }
 }

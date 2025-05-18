@@ -8,6 +8,8 @@ export enum ProjectAPI {
   SELECT_MAP_DATA_FILE = 'project/selectMapDataFile',
   SELECT_MAP_TYPES_FILE = 'project/selectMapTypesFile',
   WRITE_GENERATED_FILES = 'project/writeGeneratedFiles',
+  SAVE_PROJECT = 'project/save',
+  LOAD_PROJECT = 'LOAD_PROJECT',
 }
 
 export type CreateProjectDTO = {

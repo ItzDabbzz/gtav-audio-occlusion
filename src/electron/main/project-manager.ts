@@ -1,18 +1,18 @@
-import { ipcMain, Event } from 'electron';
-import path from 'path';
-
+import { ipcMain } from 'electron';
+import path from 'node:path';
+import fs from 'node:fs';
 import { err, isErr, ok, unwrapResult } from '@/electron/common';
 
 import { ProjectAPI } from '@/electron/common/types/project';
-import type { CreateProjectDTO } from '@/electron/common/types/project';
+import type { CreateProjectDTO, SerializedProject } from '@/electron/common/types/project';
 import type { CreateInteriorDTO } from '@/electron/common/types/interior';
 
 import { isXMLFilePath, isMapDataFilePath, isMapTypesFilePath } from '@/electron/common/utils/files';
 
-import { Ymap, Ytyp } from '@/core/types/xml';
+import type { Ymap, Ytyp } from '@/core/types/xml';
 import { getCMloInstanceDef } from '@/core/game';
 
-import { Application } from './app';
+import type { Application } from './app';
 
 import { Project } from './project';
 import { Interior } from './interior';
@@ -39,10 +39,63 @@ export class ProjectManager {
     ipcMain.handle(ProjectAPI.SELECT_MAP_DATA_FILE, this.selectMapDataFile.bind(this));
     ipcMain.handle(ProjectAPI.SELECT_MAP_TYPES_FILE, this.selectMapTypesFile.bind(this));
     ipcMain.handle(ProjectAPI.WRITE_GENERATED_FILES, this.writeGeneratedFiles.bind(this));
+    ipcMain.handle(ProjectAPI.SAVE_PROJECT, this.saveProject.bind(this));
+    ipcMain.handle(ProjectAPI.LOAD_PROJECT, this.loadProject.bind(this));
   }
 
   public getCurrentProject(): Result<string, Project> {
     return ok(this.currentProject);
+  }
+
+  /**
+   * Serialize the current project and write it to disk as `project.json`
+   */
+  public async saveProject(): Promise<Result<string, boolean>> {
+    if (!this.currentProject) {
+      return err('NO_PROJECT_OPENED');
+    }
+
+    const data = this.currentProject.serialize();
+    const projectFile = path.resolve(this.currentProject.path, 'project.json');
+
+    try {
+      const json = JSON.stringify(data, null, 2);
+      await fs.promises.writeFile(projectFile, json, 'utf-8');
+    } catch (e) {
+      console.error('Failed to save project', e);
+      return err('FAILED_SAVING_PROJECT');
+    }
+
+    return ok(true);
+  }
+
+  public async loadProject(_: Event, folder?: string): Promise<Result<string, SerializedProject>> {
+    // 1) pick a folder if needed
+    let projectDir = folder ?? this.currentProject?.path;
+    if (!projectDir) {
+      const [selected] = await selectDirectory();
+      if (!selected) {
+        return err('NO_PROJECT_SELECTED');
+      }
+      projectDir = selected;
+    }
+
+    // 2) read project.json
+    const projectFile = path.resolve(projectDir, 'project.json');
+    if (!fs.existsSync(projectFile)) {
+      return err('PROJECT_FILE_NOT_FOUND');
+    }
+
+    try {
+      const raw = await fs.promises.readFile(projectFile, 'utf-8');
+      const data = JSON.parse(raw);
+      this.currentProject = Project.deserialize(data);
+      // return the serialized form back to renderer
+      return ok(this.currentProject.serialize());
+    } catch (e) {
+      console.error('Failed loading project', e);
+      return err('FAILED_LOADING_PROJECT');
+    }
   }
 
   public async selectProjectPath(): Promise<Result<string, string>> {
@@ -193,6 +246,7 @@ export class ProjectManager {
       return err('FAILED_TO_WRITE_DAT_151_FILE');
     }
 
+    // biome-ignore lint/complexity/noForEach: <explanation>
     project.interiors.forEach(interior => {
       interior.audioGameDataPath = filePath;
     });
@@ -218,6 +272,7 @@ export class ProjectManager {
       return err('FAILED_TO_WRITE_DAT_15_FILE');
     }
 
+    // biome-ignore lint/complexity/noForEach: <explanation>
     project.interiors.forEach(interior => {
       interior.audioMixDataPath = filePath;
     });

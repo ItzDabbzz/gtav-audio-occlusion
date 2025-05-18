@@ -1,156 +1,174 @@
-import React, { createContext, useState, useContext } from 'react';
-
+import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { isErr, unwrapResult } from '@/electron/common';
-
-import { ProjectAPI } from '@/electron/common/types/project';
-import type { SerializedProject } from '@/electron/common/types/project';
-
-import { ProjectState, CreateProjectModalState } from './types';
-
-interface IProjectProvider {
-  children: React.ReactNode;
-}
-
-interface IProjectContext {
-  state: ProjectState;
-  fetchProject: () => Promise<void>;
-  createProject: () => Promise<void>;
-  closeProject: () => Promise<void>;
-  writeGeneratedFiles: () => Promise<void>;
-
-  createModalState: CreateProjectModalState;
-  setCreateModalOpen: (open: boolean) => void;
-  setCreateModalName: (name: string) => void;
-  setCreateModalInterior: (interior: string) => void;
-  setCreateModalPath: (path: string) => void;
-  setCreateModalMapDataFile: (mapDataFile: string) => void;
-  setCreateModalMapTypesFile: (mapTypesFile: string) => void;
-}
+import { ProjectAPI, SerializedProject, CreateProjectDTO } from '@/electron/common/types/project';
+import type { CreateProjectModalState } from './types';
 
 const { API } = window;
 
-const createModalinitialState: CreateProjectModalState = {
-  open: false,
-  name: '',
-  path: '...',
-  interior: '',
-  mapDataFilePath: '...',
-  mapTypesFilePath: '...',
-};
+interface IProjectContext {
+  // the project loaded into React
+  state?: SerializedProject;
+
+  // “New project” modal state + setters
+  createModalState: CreateProjectModalState;
+  setCreateModalOpen: (open: boolean) => void;
+  setCreateModalName: (name: string) => void;
+  setCreateModalPath: (path: string) => void;
+  setCreateModalInterior: (interior: string) => void;
+  setCreateModalMapDataFile: (mapDataFile: string) => void;
+  setCreateModalMapTypesFile: (mapTypesFile: string) => void;
+
+  // RPC calls
+  fetchProject: () => Promise<void>;
+  createProject: () => Promise<void>;
+  openProject: () => Promise<void>;
+  reloadProject: () => Promise<void>;
+  saveProject: () => Promise<void>;
+  closeProject: () => Promise<void>;
+  writeGeneratedFiles: () => Promise<void>;
+}
 
 const projectContext = createContext<IProjectContext>({} as IProjectContext);
 
-const useProjectProvider = (): IProjectContext => {
-  const [state, setState] = useState<ProjectState>();
-  const [createModalState, setCreateModalState] = useState<CreateProjectModalState>(createModalinitialState);
+export const ProjectProvider = ({ children }: { children: ReactNode }) => {
+  const [state, setState] = useState<SerializedProject>();
+  const [createModalState, setCreateModalState] = useState<CreateProjectModalState>({
+    open: false,
+    name: '',
+    path: '',
+    interior: '',
+    mapDataFilePath: '',
+    mapTypesFilePath: '',
+  });
 
-  const fetchProject = async (): Promise<void> => {
-    const result: Result<string, SerializedProject | undefined> = await API.invoke(ProjectAPI.GET_CURRENT_PROJECT);
-
+  // fetch “current” from main
+  const fetchProject = useCallback(async () => {
+    const result = await API.invoke(ProjectAPI.GET_CURRENT_PROJECT);
     if (isErr(result)) {
-      return console.warn(unwrapResult(result));
+      console.warn(unwrapResult(result));
+      return;
     }
-
     const project = unwrapResult(result);
+    if (!project) {
+      setState(undefined);
+    } else {
+      setState(project as SerializedProject);
+    }
+  }, []);
 
-    if (!project) return;
-
-    setState(project);
-  };
-
-  const createProject = async (): Promise<void> => {
-    const { name, path, interior, mapDataFilePath, mapTypesFilePath } = createModalState;
-
-    const result: Result<string, SerializedProject> = await API.invoke(ProjectAPI.CREATE_PROJECT, {
-      name,
-      path,
+  // create a new project from modal form
+  const createProject = useCallback(async () => {
+    const dto: CreateProjectDTO = {
+      name: createModalState.name,
+      path: createModalState.path,
       interior: {
-        name: interior,
-        mapDataFilePath,
-        mapTypesFilePath,
+        name: createModalState.interior,
+        mapDataFilePath: createModalState.mapDataFilePath,
+        mapTypesFilePath: createModalState.mapTypesFilePath,
       },
-    });
-
+    };
+    const result = await API.invoke(ProjectAPI.CREATE_PROJECT, dto);
     if (isErr(result)) {
-      return console.warn(unwrapResult(result));
+      console.warn(unwrapResult(result));
+      return;
     }
-
+    // reload React state + close modal
     await fetchProject();
+    setCreateModalState(s => ({ ...s, open: false }));
+  }, [createModalState, fetchProject]);
 
-    setCreateModalState(() => createModalinitialState);
-  };
+  // pick a folder & then load that project.json
+  const openProject = useCallback(async () => {
+    // ask main for a directory
+    const dirResult = await API.invoke(ProjectAPI.SELECT_PROJECT_PATH);
+    if (isErr(dirResult)) {
+      console.warn(unwrapResult(dirResult));
+      return;
+    }
+    const folder = unwrapResult(dirResult);
 
-  const closeProject = async (): Promise<void> => {
-    const result: Result<string, boolean> = await API.invoke(ProjectAPI.CLOSE_PROJECT);
-
-    if (isErr(result)) {
-      return console.warn(unwrapResult(result));
+    // now load
+    const loadResult = await API.invoke(ProjectAPI.LOAD_PROJECT, folder);
+    if (isErr(loadResult)) {
+      console.warn(unwrapResult(loadResult));
+      return;
     }
 
-    setState(undefined);
-  };
+    setState(unwrapResult(loadResult));
+  }, []);
 
-  const writeGeneratedFiles = async (): Promise<void> => {
-    const result: Result<string, boolean> = await API.invoke(ProjectAPI.WRITE_GENERATED_FILES);
-
-    if (isErr(result)) {
-      return console.warn(unwrapResult(result));
+  // reload the same one
+  const reloadProject = useCallback(async () => {
+    const loadResult = await API.invoke(ProjectAPI.LOAD_PROJECT);
+    if (isErr(loadResult)) {
+      console.warn(unwrapResult(loadResult));
+      return;
     }
-  };
+    setState(unwrapResult(loadResult));
+  }, []);
 
-  const setCreateModalOpen = (open: boolean): void => {
-    setCreateModalState(state => ({ ...state, open }));
-  };
+  const saveProject = useCallback(async () => {
+    const result = await API.invoke(ProjectAPI.SAVE_PROJECT);
+    if (isErr(result)) {
+      console.warn(unwrapResult(result));
+    }
+  }, []);
 
-  const setCreateModalName = (name: string): void => {
-    setCreateModalState(state => ({ ...state, name }));
-  };
+  const closeProject = useCallback(async () => {
+    const result = await API.invoke(ProjectAPI.CLOSE_PROJECT);
+    if (isErr(result)) {
+      console.warn(unwrapResult(result));
+    } else {
+      setState(undefined);
+    }
+  }, []);
 
-  const setCreateModalInterior = (interior: string): void => {
-    setCreateModalState(state => ({ ...state, interior }));
-  };
+  const writeGeneratedFiles = useCallback(async () => {
+    const result = await API.invoke(ProjectAPI.WRITE_GENERATED_FILES);
+    if (isErr(result)) {
+      console.warn(unwrapResult(result));
+    }
+  }, []);
 
-  const setCreateModalPath = (path: string): void => {
-    setCreateModalState(state => ({ ...state, path }));
-  };
+  // modal setters
+  const setCreateModalOpen = (open: boolean) => setCreateModalState(s => ({ ...s, open }));
+  const setCreateModalName = (name: string) => setCreateModalState(s => ({ ...s, name }));
+  const setCreateModalPath = (path: string) => setCreateModalState(s => ({ ...s, path }));
+  const setCreateModalInterior = (interior: string) => setCreateModalState(s => ({ ...s, interior }));
+  const setCreateModalMapDataFile = (mapDataFile: string) =>
+    setCreateModalState(s => ({ ...s, mapDataFilePath: mapDataFile }));
+  const setCreateModalMapTypesFile = (mapTypesFile: string) =>
+    setCreateModalState(s => ({ ...s, mapTypesFilePath: mapTypesFile }));
 
-  const setCreateModalMapDataFile = (mapDataFilePath: string): void => {
-    setCreateModalState(state => ({ ...state, mapDataFilePath }));
-  };
-
-  const setCreateModalMapTypesFile = (mapTypesFilePath: string): void => {
-    setCreateModalState(state => ({ ...state, mapTypesFilePath }));
-  };
-
-  return {
-    state,
-    fetchProject,
-    createProject,
-    closeProject,
-    writeGeneratedFiles,
-
-    createModalState,
-    setCreateModalOpen,
-    setCreateModalName,
-    setCreateModalInterior,
-    setCreateModalPath,
-    setCreateModalMapDataFile,
-    setCreateModalMapTypesFile,
-  };
+  return (
+    <projectContext.Provider
+      value={{
+        state,
+        createModalState,
+        setCreateModalOpen,
+        setCreateModalName,
+        setCreateModalPath,
+        setCreateModalInterior,
+        setCreateModalMapDataFile,
+        setCreateModalMapTypesFile,
+        fetchProject,
+        createProject,
+        openProject,
+        reloadProject,
+        saveProject,
+        closeProject,
+        writeGeneratedFiles,
+      }}
+    >
+      {children}
+    </projectContext.Provider>
+  );
 };
 
-export const ProjectProvider = ({ children }: IProjectProvider): JSX.Element => {
-  const project = useProjectProvider();
-
-  return <projectContext.Provider value={project}>{children}</projectContext.Provider>;
-};
-
-export const useProject = (): IProjectContext => {
-  const context = useContext(projectContext);
-
-  if (!context) {
-    throw new Error('useProject must be used within an ProjectProvider');
+export const useProject = () => {
+  const ctx = useContext(projectContext);
+  if (!ctx) {
+    throw new Error('useProject must be used within a ProjectProvider');
   }
-
-  return context;
+  return ctx;
 };

@@ -1,4 +1,4 @@
-import { SerializedProject } from '@/electron/common/types/project';
+import type { SerializedProject } from '@/electron/common/types/project';
 
 export type ProjectState = SerializedProject;
 

@@ -31,4 +31,18 @@ export class CEntityDef {
 
     this.archetype = archetype;
   }
+
+  /** JSON‐friendly shape */
+  public toSerializable(): { type: string; archetypeName: string; position: Vector3 } {
+    return {
+      type: this.type,
+      archetypeName: this.archetypeName,
+      position: this.position,
+    };
+  }
+
+  /** Rehydrate if needed */
+  public static fromSerializable(data: { type: string; archetypeName: string; position: Vector3 }): CEntityDef {
+    return new CEntityDef(data);
+  }
 }
