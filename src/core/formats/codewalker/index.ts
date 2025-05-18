@@ -434,4 +434,101 @@ export class CodeWalkerFormat {
 
     return filePath;
   }
+
+  public async writeDat15(targetPath: string, interiorName: string): Promise<string> {
+    const scene = `${interiorName}_scene`;
+    const patch = `${interiorName}_patch`;
+    const dat15Object: XML.AudioDynamixData = {
+      Dat15: {
+        Version: { $: { value: 9037528 } },
+        Items: {
+          Item: [
+            {
+              $: { type: 'Scene', ntOffset: 0 },
+              Name: scene,
+              Flags: { $: { value: '0xAAAA0001' } },
+              Unk01: '',
+              Items: {
+                Item: [{ Patch: patch, Group: '' }],
+              },
+            },
+            {
+              $: { type: 'Patch', ntOffset: 0 },
+              Name: patch,
+              Flags: { $: { value: '0xAAAA0001' } },
+              FadeIn: { $: { value: 500 } },
+              FadeOut: { $: { value: 500 } },
+              PreDelay: { $: { value: 0 } },
+              Duration: { $: { value: 0 } },
+              ApplyFactorCurve: 'hash_0D0E6F19',
+              ApplyVariable: 'hash_E865CDE8',
+              ApplySmoothRate: { $: { value: 0 } },
+              Patches: {
+                Item: [
+                  {
+                    Category: 'vehicles_train',
+                    Volume: { $: { value: -400 } },
+                    Unk03: { $: { value: 1 } },
+                    LPFCutoff: { $: { value: 92 } },
+                    HPFCutoff: { $: { value: 93 } },
+                    Unk06: { $: { value: 250 } },
+                    Unk07: { $: { value: 0 } },
+                    Unk08: { $: { value: 0 } },
+                    Unk09: { $: { value: 1 } },
+                    Unk10: { $: { value: 1 } },
+                    Unk11: { $: { value: 1 } },
+                  },
+                  {
+                    Category: 'vehicles_horns_loud',
+                    Volume: { $: { value: -900 } },
+                    Unk03: { $: { value: 1 } },
+                    LPFCutoff: { $: { value: 92 } },
+                    HPFCutoff: { $: { value: 93 } },
+                    Unk06: { $: { value: 0 } },
+                    Unk07: { $: { value: 0 } },
+                    Unk08: { $: { value: 0 } },
+                    Unk09: { $: { value: 1 } },
+                    Unk10: { $: { value: 1 } },
+                    Unk11: { $: { value: 0.5 } },
+                  },
+                  {
+                    Category: 'ambience',
+                    Volume: { $: { value: 600 } },
+                    Unk03: { $: { value: 1 } },
+                    LPFCutoff: { $: { value: 92 } },
+                    HPFCutoff: { $: { value: 93 } },
+                    Unk06: { $: { value: 0 } },
+                    Unk07: { $: { value: 0 } },
+                    Unk08: { $: { value: 0 } },
+                    Unk09: { $: { value: 1 } },
+                    Unk10: { $: { value: 1 } },
+                    Unk11: { $: { value: 1 } },
+                  },
+                  {
+                    Category: 'weather',
+                    Volume: { $: { value: -10400 } },
+                    Unk03: { $: { value: 1 } },
+                    LPFCutoff: { $: { value: 92 } },
+                    HPFCutoff: { $: { value: 93 } },
+                    Unk06: { $: { value: 250 } },
+                    Unk07: { $: { value: 0 } },
+                    Unk08: { $: { value: 0 } },
+                    Unk09: { $: { value: 1 } },
+                    Unk10: { $: { value: 1 } },
+                    Unk11: { $: { value: 1 } },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    };
+
+    const filePath = path.resolve(targetPath, 'mix.dat15.rel.xml');
+
+    await this.writeFile(filePath, dat15Object);
+
+    return filePath;
+  }
 }

@@ -199,11 +199,37 @@ export class ProjectManager {
 
     return ok(filePath);
   }
+  public async writeDat15(): Promise<Result<string, string>> {
+    const projectResult = this.application.projectManager.getCurrentProject();
+
+    if (isErr(projectResult)) {
+      return projectResult;
+    }
+
+    const project = unwrapResult(projectResult);
+
+    const audioGameData = project.interiors.flatMap(interior => interior.getInteriorName());
+
+    let filePath: string;
+
+    try {
+      filePath = await this.application.codeWalkerFormat.writeDat15(project.path, audioGameData);
+    } catch {
+      return err('FAILED_TO_WRITE_DAT_15_FILE');
+    }
+
+    project.interiors.forEach(interior => {
+      interior.audioMixDataPath = filePath;
+    });
+
+    return ok(filePath);
+  }
 
   public async writeGeneratedFiles(): Promise<Result<string, boolean>> {
-    const [interiorsMetadataResult, dat151Result] = await Promise.all([
+    const [interiorsMetadataResult, dat151Result, dat15Result] = await Promise.all([
       this.writeInteriorsOcclusionMetadata(),
       this.writeDat151(),
+      this.writeDat15(),
     ]);
 
     if (isErr(interiorsMetadataResult)) {
@@ -212,6 +238,10 @@ export class ProjectManager {
 
     if (isErr(dat151Result)) {
       return dat151Result;
+    }
+
+    if (isErr(dat15Result)) {
+      return dat15Result;
     }
 
     return ok(true);

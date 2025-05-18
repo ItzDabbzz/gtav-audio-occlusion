@@ -37,6 +37,7 @@ export class Interior {
 
   public naOcclusionInteriorMetadataPath: string;
   public audioGameDataPath: string;
+  public audioMixDataPath: string;
 
   constructor({
     identifier,
@@ -64,10 +65,15 @@ export class Interior {
 
     this.naOcclusionInteriorMetadataPath = undefined;
     this.audioGameDataPath = undefined;
+    this.audioMixDataPath = undefined;
   }
 
   public getAudioGameData(): AudioGameData {
     return [this.interiorAudioGameData, ...this.interiorRoomAudioGameDataList];
+  }
+
+  public getInteriorName(): string {
+    return this.identifier;
   }
 
   public serialize(): SerializedInterior {
@@ -81,6 +87,7 @@ export class Interior {
       interiorRoomAudioGameDataList,
       naOcclusionInteriorMetadataPath,
       audioGameDataPath,
+      audioMixDataPath,
     } = this;
 
     const { interiorProxyHash, portalInfoList } = naOcclusionInteriorMetadata;
@@ -115,6 +122,7 @@ export class Interior {
       interiorRoomAudioGameDataList,
       naOcclusionInteriorMetadataPath,
       audioGameDataPath,
+      audioMixDataPath
     };
   }
 }

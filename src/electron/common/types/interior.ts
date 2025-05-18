@@ -17,6 +17,7 @@ export type SerializedInterior = {
   interiorRoomAudioGameDataList: SerializedInteriorRoomAudioGameData[];
   naOcclusionInteriorMetadataPath: string;
   audioGameDataPath: string;
+  audioMixDataPath: string;
 };
 
 export enum InteriorAPI {
