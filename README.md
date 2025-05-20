@@ -4,6 +4,10 @@ A tool for generating audio occlusion for V MLOs.
 
 It was created as an incentive to help the community move to [FiveM](https://fivem.net/)'s native audio system.
 
+## Note from Dabz
+
+This is updated to the latest CodeWalker standards, This will export a usable game & mix file that can be re-imported into latest CodeWalker
+
 ## Disclaimer
 
 This tool uses the CodeWalker XML format, so you need to extract/import game files with [CodeWalker](https://github.com/dexyfex/CodeWalker) before using the generated files.
