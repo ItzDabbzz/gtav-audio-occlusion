@@ -1,0 +1,46 @@
+{
+    "$schema": "https://cdn.statically.io/gh/nguyenngoclongdev/cdn/main/schema/v10/terminal-keeper.json",
+    "theme": "tribe",
+    "active": "default",
+    "activateOnStartup": true,
+    "keepExistingTerminals": false,
+    "sessions": {
+        "default": [
+            {
+                "name": "Home",
+                "autoExecuteCommands": true,
+                "icon": "home",
+                "color": "terminal.ansiMagenta",
+                "commands": [
+                    ""
+                ]
+            },
+            {
+                "name": "Development",
+                "autoExecuteCommands": true,
+                "icon": "terminal",
+                "color": "terminal.ansiMagenta",
+                "commands": [
+                    "pnpm run start"
+                ]
+            },
+            {
+                "name": "Package",
+                "autoExecuteCommands": true,
+                "icon": "package",
+                "color": "terminal.ansiMagenta",
+                "commands": [
+                    "pnpm run package"
+                ]
+            }
+        ],
+        "saved-session": [
+            {
+                "name": "connect",
+                "commands": [
+                    ""
+                ]
+            }
+        ]
+    }
+}
