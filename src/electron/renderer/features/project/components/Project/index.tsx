@@ -34,14 +34,14 @@ export const Project = (): JSX.Element => {
         },
         {
           icon: <FaFolderOpen />,
-          label: 'Open project',
+          label: 'Load project',
           onClick: reloadProject,
         },
       ];
     }
     return [
       { icon: <FaSave />, label: 'Save project', onClick: saveProject },
-      { icon: <FaFolderOpen />, label: ':oad project', onClick: reloadProject },
+      { icon: <FaFolderOpen />, label: 'Load project', onClick: reloadProject },
       { icon: <FaFileDownload />, label: 'Write files', onClick: writeGeneratedFiles },
       { icon: <FaTimes />, label: 'Close project', onClick: closeProject },
     ];
