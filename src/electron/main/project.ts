@@ -30,11 +30,4 @@ export class Project {
       interiors: this.interiors.map(interior => interior.serialize()),
     };
   }
-
-  /** Rehydrate a SerializedProject back into a live Project */
-  public static deserialize(data: SerializedProject): Project {
-    const project = new Project({ name: data.name, path: data.path });
-    project.interiors = data.interiors.map(i => Interior.deserialize(i));
-    return project;
-  }
 }

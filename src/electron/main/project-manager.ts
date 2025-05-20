@@ -70,27 +70,42 @@ export class ProjectManager {
   }
 
   public async loadProject(_: Event, folder?: string): Promise<Result<string, SerializedProject>> {
-    // 1) pick a folder if needed
+    // Pick folder if none was passed
     let projectDir = folder ?? this.currentProject?.path;
     if (!projectDir) {
       const [selected] = await selectDirectory();
-      if (!selected) {
-        return err('NO_PROJECT_SELECTED');
-      }
+      if (!selected) return err('NO_PROJECT_SELECTED');
       projectDir = selected;
     }
 
-    // 2) read project.json
+    // Make sure project.json exists
     const projectFile = path.resolve(projectDir, 'project.json');
     if (!fs.existsSync(projectFile)) {
       return err('PROJECT_FILE_NOT_FOUND');
     }
 
     try {
+      // 1) Read & parse the raw JSON
       const raw = await fs.promises.readFile(projectFile, 'utf-8');
-      const data = JSON.parse(raw);
-      this.currentProject = Project.deserialize(data);
-      // return the serialized form back to renderer
+      const data = JSON.parse(raw) as SerializedProject;
+
+      // 2) Create an empty Project
+      this.currentProject = new Project({ name: data.name, path: data.path });
+
+      // 3) For each interior in the JSON, rehydrate it from its XML files
+      for (const intData of data.interiors) {
+        const result = await this.addInteriorToProject(this.currentProject, {
+          name: intData.identifier,
+          mapDataFilePath: intData.mapDataFilePath,
+          mapTypesFilePath: intData.mapTypesFilePath,
+        });
+        if (isErr(result)) {
+          // bubbling up any XML‐parsing error (e.g. FAILED_READING_#MAP_FILE, C_MLO_INSTANCE_DEF_NOT_FOUND, …)
+          return result as Err<string>;
+        }
+      }
+
+      // 4) Return the freshly parsed + rehydrated project back to the renderer
       return ok(this.currentProject.serialize());
     } catch (e) {
       console.error('Failed loading project', e);
