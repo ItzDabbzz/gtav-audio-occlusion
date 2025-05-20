@@ -60,7 +60,7 @@
     "@electron-forge/maker-zip": "^6.0.3",
     "@electron-forge/plugin-webpack": "^6.0.0-beta.67",
     "@types/jest": "^29.0.3",
-    "@types/node": "^15.0.1",
+    "@types/node": "^15.14.9",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "@types/react-router-dom": "^5.3.3",

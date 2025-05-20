@@ -70,24 +70,25 @@ export class ProjectManager {
   }
 
   public async loadProject(_: Event, folder?: string): Promise<Result<string, SerializedProject>> {
-    // Pick folder if none was passed
+    // 1) pick a folder if needed
     let projectDir = folder ?? this.currentProject?.path;
     if (!projectDir) {
       const [selected] = await selectDirectory();
-      if (!selected) return err('NO_PROJECT_SELECTED');
+      if (!selected) {
+        return err('NO_PROJECT_SELECTED');
+      }
       projectDir = selected;
     }
 
-    // Make sure project.json exists
+    // 2) read project.json
     const projectFile = path.resolve(projectDir, 'project.json');
     if (!fs.existsSync(projectFile)) {
       return err('PROJECT_FILE_NOT_FOUND');
     }
 
     try {
-      // 1) Read & parse the raw JSON
       const raw = await fs.promises.readFile(projectFile, 'utf-8');
-      const data = JSON.parse(raw) as SerializedProject;
+      const data = JSON.parse(raw);
 
       // 2) Create an empty Project
       this.currentProject = new Project({ name: data.name, path: data.path });
@@ -104,8 +105,8 @@ export class ProjectManager {
           return result as Err<string>;
         }
       }
-
-      // 4) Return the freshly parsed + rehydrated project back to the renderer
+      this.currentProject = Project.deserialize(data);
+      // return the serialized form back to renderer
       return ok(this.currentProject.serialize());
     } catch (e) {
       console.error('Failed loading project', e);
