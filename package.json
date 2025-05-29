@@ -2,6 +2,10 @@
   "name": "gtav-audio-occlusion",
   "version": "2.0.2",
   "author": "https://github.com/pedr0fontoura",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ItzDabbzz/gtav-audio-occlusion.git"
+  },
   "description": "A tool for generating audio occlusion for V MLOs.",
   "main": "./.webpack/main",
   "license": "MIT",
