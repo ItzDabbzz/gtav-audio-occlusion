@@ -4,56 +4,56 @@ import { CMloRoomDef } from '../../CMloRoomDef';
 import { getInteriorRoomName } from '../utils';
 
 export class InteriorRoomAudioGameData {
-  public name: string;
+    public Name: string;
 
-  public flags: number;
+    public Flags: number;
 
-  public mloRoom: string;
-  public zone: string;
+    public RoomName: string;
+    public AmbientZone: string;
 
-  public unk02: number;
-  public unk03: number;
-  public reverb: number;
-  public echo: number;
+    public InteriorType: number;
+    public ReverbSmall: number;
+    public ReverbMedium: number;
+    public ReverbLarge: number;
 
-  public sound: string;
+    public RoomToneSound: string;
 
-  public unk07: number;
-  public unk08: number;
-  public unk09: number;
-  public unk10: number;
-  public unk11: number;
-  public unk12: number;
+    public RainType: number;
+    public ExteriorAudibility: number;
+    public RoomOcclusionDamping: number;
+    public NonMarkedPortalOcclusion: number;
+    public DistanceFromPortalForOcclusion: number;
+    public DistanceFromPortalFadeDistance: number;
 
-  public unk13: string;
-  public soundSet: string;
+    public WeaponMetrics: string;
+    public InteriorWallaSoundSet: string;
 
-  constructor(cMloArchetypeDef: CMloArchetypeDef, cMloRoomDef: CMloRoomDef) {
-    this.name = getInteriorRoomName(cMloArchetypeDef.name, cMloRoomDef);
+    constructor(cMloArchetypeDef: CMloArchetypeDef, cMloRoomDef: CMloRoomDef) {
+        this.Name = getInteriorRoomName(cMloArchetypeDef.name, cMloRoomDef);
 
-    this.flags = 0xaaaaaaaa;
+        this.Flags = 0xaaaaaaaa;
 
-    this.mloRoom = cMloRoomDef.name;
-    this.zone = undefined;
+        this.RoomName = cMloRoomDef.name;
+        this.AmbientZone = undefined;
 
-    this.unk02 = 0;
-    this.unk03 = 0.35;
-    this.reverb = 0;
-    this.echo = 0;
+        this.InteriorType = 0;
+        this.ReverbSmall = 0.35;
+        this.ReverbMedium = 0;
+        this.ReverbLarge = 0;
 
-    this.sound = 'null_sound';
+        this.RoomToneSound = 'null_sound';
 
-    this.unk07 = 0;
-    this.unk08 = 0;
-    this.unk09 = 0;
-    this.unk10 = 0.7;
-    this.unk11 = 0;
-    this.unk12 = 50;
+        this.RainType = 0;
+        this.ExteriorAudibility = 0;
+        this.RoomOcclusionDamping = 0;
+        this.NonMarkedPortalOcclusion = 0.7;
+        this.DistanceFromPortalForOcclusion = 0;
+        this.DistanceFromPortalFadeDistance = 50;
 
-    this.unk13 = undefined; // Static emitter hash?
-    this.soundSet = 'hash_D4855127';
-  }
+        this.WeaponMetrics = undefined; // Static emitter hash?
+        this.InteriorWallaSoundSet = 'hash_D4855127';
+    }
 }
 
 export const isInteriorRoomAudioGameData = (value: unknown): value is InteriorRoomAudioGameData =>
-  value instanceof InteriorRoomAudioGameData;
+    value instanceof InteriorRoomAudioGameData;

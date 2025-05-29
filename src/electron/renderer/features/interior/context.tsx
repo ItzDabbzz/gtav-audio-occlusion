@@ -6,14 +6,14 @@ import { InteriorAPI } from '@/electron/common/types/interior';
 import type { SerializedInterior } from '@/electron/common/types/interior';
 
 type InteriorProviderProps = {
-  identifier: string;
-  children: React.ReactNode;
+    identifier: string;
+    children: React.ReactNode;
 };
 
 interface IInteriorContext {
-  interior: SerializedInterior;
+    interior: SerializedInterior;
 
-  fetchInterior: () => Promise<void>;
+    fetchInterior: () => Promise<void>;
 }
 
 const { API } = window;
@@ -21,43 +21,43 @@ const { API } = window;
 const interiorContext = createContext<IInteriorContext>({} as IInteriorContext);
 
 const useInteriorProvider = (identifier: string): IInteriorContext => {
-  const [interior, setInterior] = useState<SerializedInterior>();
+    const [interior, setInterior] = useState<SerializedInterior>();
 
-  const fetchInterior = async (): Promise<void> => {
-    const result: Result<string, SerializedInterior | undefined> = await API.invoke(
-      InteriorAPI.GET_INTERIOR,
-      identifier,
-    );
+    const fetchInterior = async (): Promise<void> => {
+        const result: Result<string, SerializedInterior | undefined> = await API.invoke(
+            InteriorAPI.GET_INTERIOR,
+            identifier,
+        );
 
-    if (isErr(result)) {
-      return console.warn(unwrapResult(result));
-    }
+        if (isErr(result)) {
+            return console.warn(unwrapResult(result));
+        }
 
-    const interior = unwrapResult(result);
-    if (!interior) return;
+        const interior = unwrapResult(result);
+        if (!interior) return;
 
-    setInterior(interior);
-  };
+        setInterior(interior);
+    };
 
-  useEffect(() => {
-    fetchInterior();
-  }, []);
+    useEffect(() => {
+        fetchInterior();
+    }, []);
 
-  return { interior, fetchInterior };
+    return { interior, fetchInterior };
 };
 
 export const InteriorProvider = ({ identifier, children }: InteriorProviderProps): JSX.Element => {
-  const interior = useInteriorProvider(identifier);
+    const interior = useInteriorProvider(identifier);
 
-  return <interiorContext.Provider value={interior}>{children}</interiorContext.Provider>;
+    return <interiorContext.Provider value={interior}>{children}</interiorContext.Provider>;
 };
 
 export const useInterior = (): IInteriorContext => {
-  const context = useContext(interiorContext);
+    const context = useContext(interiorContext);
 
-  if (!context) {
-    throw new Error('useInterior must be used within an InteriorProvider');
-  }
+    if (!context) {
+        throw new Error('useInterior must be used within an InteriorProvider');
+    }
 
-  return context;
+    return context;
 };

@@ -1,10 +1,10 @@
 export interface XMLEntry<Data, Item = void> {
-  $: Data;
-  Item: Item;
+    $: Data;
+    Item: Item;
 }
 
 export interface XMLDataEntry<T> {
-  $: T;
+    $: T;
 }
 
 export * from './ymap';

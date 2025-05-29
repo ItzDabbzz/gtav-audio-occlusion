@@ -5,71 +5,72 @@ import { naOcclusionInteriorMetadata } from './naOcclusionInteriorMetadata';
 import { naOcclusionPortalEntityMetadata } from './naOcclusionPortalEntityMetadata';
 
 type naOcclusionPortalInfoMetadataConstructor = {
-  portal: CMloPortalDef;
-  portalIndex: number;
-  infoIndex: number;
-  interiorMetadata: naOcclusionInteriorMetadata;
-  portalIdx: number;
-  roomFrom: number;
-  roomTo: number;
+    portal: CMloPortalDef;
+    portalIndex: number;
+    infoIndex: number;
+    interiorMetadata: naOcclusionInteriorMetadata;
+    portalIdx: number;
+    roomFrom: number;
+    roomTo: number;
 };
 
 export class naOcclusionPortalInfoMetadata {
-  private portal: CMloPortalDef;
+    private portal: CMloPortalDef;
 
-  public enabled: boolean;
+    public enabled: boolean;
 
-  public portalIndex: number; // relative to CMloArchetypeDef
-  public infoIndex: number; // relative to naOcclusionInteriorMetadata portalInfoList
+    public portalIndex: number; // relative to CMloArchetypeDef
+    public infoIndex: number; // relative to naOcclusionInteriorMetadata portalInfoList
 
-  public interiorProxyHash: number;
-  public portalIdx: number; // relative to roomIdx
-  public roomIdx: number;
-  public destInteriorHash: number;
-  public destRoomIdx: number;
+    public interiorProxyHash: number;
+    public portalIdx: number; // relative to roomIdx
+    public roomIdx: number;
+    public destInteriorHash: number;
+    public destRoomIdx: number;
 
-  public portalEntityList: naOcclusionPortalEntityMetadata[];
+    public portalEntityList: naOcclusionPortalEntityMetadata[];
 
-  constructor({
-    portal,
-    portalIndex,
-    infoIndex,
-    interiorMetadata,
-    portalIdx,
-    roomFrom,
-    roomTo,
-  }: naOcclusionPortalInfoMetadataConstructor) {
-    const { interiorProxyHash, interior } = interiorMetadata;
+    constructor({
+        portal,
+        portalIndex,
+        infoIndex,
+        interiorMetadata,
+        portalIdx,
+        roomFrom,
+        roomTo,
+    }: naOcclusionPortalInfoMetadataConstructor) {
+        const { interiorProxyHash, interior } = interiorMetadata;
 
-    this.enabled = true;
+        this.enabled = true;
 
-    this.portal = portal;
-    this.portalIndex = portalIndex;
-    this.infoIndex = infoIndex;
+        this.portal = portal;
+        this.portalIndex = portalIndex;
+        this.infoIndex = infoIndex;
 
-    this.interiorProxyHash = interiorProxyHash;
-    this.portalIdx = portalIdx;
-    this.roomIdx = roomFrom;
-    this.destInteriorHash = this.interiorProxyHash;
-    this.destRoomIdx = roomTo;
+        this.interiorProxyHash = interiorProxyHash;
+        this.portalIdx = portalIdx;
+        this.roomIdx = roomFrom;
+        this.destInteriorHash = this.interiorProxyHash;
+        this.destRoomIdx = roomTo;
 
-    this.portalEntityList = this.portal.attachedEntities.map(
-      entity => new naOcclusionPortalEntityMetadata({ linkType: 1, entity: interior.archetype.getEntity(entity) }),
-    );
-  }
+        this.portalEntityList = this.portal.attachedEntities.map(
+            entity =>
+                new naOcclusionPortalEntityMetadata({ linkType: 1, entity: interior.archetype.getEntity(entity) }),
+        );
+    }
 
-  /** JSON‐friendly shape */
-  public toSerializable(): SerializedNaOcclusionPortalInfoMetadata {
-    return {
-      enabled: this.enabled,
-      portalIndex: this.portalIndex,
-      infoIndex: this.infoIndex,
-      interiorProxyHash: this.interiorProxyHash,
-      portalIdx: this.portalIdx,
-      roomIdx: this.roomIdx,
-      destInteriorHash: this.destInteriorHash,
-      destRoomIdx: this.destRoomIdx,
-      portalEntityList: this.portalEntityList.map(pe => pe.toSerializable()),
-    };
-  }
+    /** JSON‐friendly shape */
+    public toSerializable(): SerializedNaOcclusionPortalInfoMetadata {
+        return {
+            enabled: this.enabled,
+            portalIndex: this.portalIndex,
+            infoIndex: this.infoIndex,
+            interiorProxyHash: this.interiorProxyHash,
+            portalIdx: this.portalIdx,
+            roomIdx: this.roomIdx,
+            destInteriorHash: this.destInteriorHash,
+            destRoomIdx: this.destRoomIdx,
+            portalEntityList: this.portalEntityList.map(pe => pe.toSerializable()),
+        };
+    }
 }

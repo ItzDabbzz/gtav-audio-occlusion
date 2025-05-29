@@ -3,38 +3,36 @@ import type { SerializedProject } from '@/electron/common/types/project';
 import { Interior } from './interior';
 
 type ProjectConstructor = {
-  name: string;
-  path: string;
+    name: string;
+    path: string;
 };
 
 export class Project {
-  public name: string;
-  public path: string;
+    public name: string;
+    public path: string;
 
-  public interiors: Interior[];
+    public interiors: Interior[];
 
-  constructor({ name, path }: ProjectConstructor) {
-    this.name = name;
-    this.path = path;
-    this.interiors = [];
-  }
+    constructor({ name, path }: ProjectConstructor) {
+        this.name = name;
+        this.path = path;
+        this.interiors = [];
+    }
 
-  public addInterior(interior: Interior): void {
-    this.interiors.push(interior);
-  }
+    public addInterior(interior: Interior): void {
+        this.interiors.push(interior);
+    }
 
-  public serialize(): SerializedProject {
-    return {
-      name: this.name,
-      path: this.path,
-      interiors: this.interiors.map(interior => interior.serialize()),
-    };
-  }
-
-  /** Rehydrate a SerializedProject back into a live Project */
-  public static deserialize(data: SerializedProject): Project {
-    const project = new Project({ name: data.name, path: data.path });
-    project.interiors = data.interiors.map(i => Interior.deserialize(i));
-    return project;
-  }
+    public serialize(): SerializedProject {
+        return {
+            name: this.name,
+            path: this.path,
+            interiors: this.interiors.map(interior => interior.serialize()),
+        };
+    }
+    public static deserialize(data: SerializedProject): Project {
+        const project = new Project({ name: data.name, path: data.path });
+        project.interiors = data.interiors.map(i => Interior.deserialize(i));
+        return project;
+    }
 }

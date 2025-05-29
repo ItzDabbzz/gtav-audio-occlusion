@@ -2,86 +2,87 @@ import styled, { css } from 'styled-components';
 import { lighten } from 'polished';
 
 type TableProps = {
-  alternatedRowColors?: boolean;
+    alternatedRowColors?: boolean;
 };
 
 export const TableContainer = styled.div`
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 
-  overflow-x: auto;
+    overflow-x: auto;
 
-  border-radius: 8px;
+    border-radius: 8px;
 `;
 
 export const Table = styled.table<TableProps>`
-  width: 100%;
+    width: 100%;
 
-  border-collapse: collapse;
+    border-collapse: collapse;
 
-  tr > * {
-    padding: 0 8px;
-  }
-
-  th {
-    height: 32px;
-
-    border: none;
-    margin: none;
-
-    font-size: 0.8em;
-    font-weight: 500;
-
-    background: ${({ theme }) => theme.colors.gray[700]};
-
-    text-align: start;
-
-    &:nth-child(1) {
-      border-radius: 8px 0 0 0;
+    tr > * {
+        padding: 0 8px;
     }
 
-    &:nth-last-child(1) {
-      border-radius: 0 8px 0 0;
-    }
-  }
+    th {
+        height: 32px;
 
-  td {
-    height: 40px;
+        border: none;
+        margin: none;
 
-    font-size: 0.8em;
-    font-weight: 400;
-    color: ${({ theme }) => theme.colors.gray[400]};
+        font-size: 0.8em;
+        font-weight: 500;
 
-    background: ${({ theme }) => theme.colors.gray[900]};
-  }
+        background: ${({ theme }) => theme.colors.surface0};
+        color: ${({ theme }) => theme.colors.text};
 
-  tr {
-    &:nth-last-child(1) {
-      td {
+        text-align: start;
+
         &:nth-child(1) {
-          border-radius: 0 0 0 8px;
+            border-radius: 8px 0 0 0;
         }
 
         &:nth-last-child(1) {
-          border-radius: 0 0 8px 0;
+            border-radius: 0 8px 0 0;
         }
-      }
     }
 
-    ${({ alternatedRowColors = true }) =>
-      alternatedRowColors &&
-      css`
-        &:nth-child(odd) {
-          td {
-            background: ${({ theme }) => lighten(0.01, theme.colors.gray[900])};
-          }
-        }
-      `}
-  }
-
-  tr.odd {
     td {
-      background: ${({ theme }) => lighten(0.01, theme.colors.gray[900])};
+        height: 40px;
+
+        font-size: 0.8em;
+        font-weight: 400;
+        color: ${({ theme }) => theme.colors.text};
+
+        background: ${({ theme }) => theme.colors.overlay0};
     }
-  }
+
+    tr {
+        &:nth-last-child(1) {
+            td {
+                &:nth-child(1) {
+                    border-radius: 0 0 0 8px;
+                }
+
+                &:nth-last-child(1) {
+                    border-radius: 0 0 8px 0;
+                }
+            }
+        }
+
+        ${({ alternatedRowColors = true }) =>
+            alternatedRowColors &&
+            css`
+                &:nth-child(odd) {
+                    td {
+                        background: ${({ theme }) => lighten(0.01, theme.colors.surface1)};
+                    }
+                }
+            `}
+    }
+
+    tr.odd {
+        td {
+            background: ${({ theme }) => lighten(0.01, theme.colors.surface2)};
+        }
+    }
 `;

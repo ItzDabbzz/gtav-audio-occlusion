@@ -4,13 +4,13 @@ import { CMloArchetypeDef } from './CMloArchetypeDef';
 export type CArchetypeDef = CBaseArchetypeDef | CMloArchetypeDef;
 
 type CMapTypesConstructor = {
-  archetypes: CArchetypeDef[];
+    archetypes: CArchetypeDef[];
 };
 
 export class CMapTypes {
-  public archetypes: CArchetypeDef[];
+    public archetypes: CArchetypeDef[];
 
-  constructor({ archetypes }: CMapTypesConstructor) {
-    this.archetypes = archetypes;
-  }
+    constructor({ archetypes }: CMapTypesConstructor) {
+        this.archetypes = archetypes;
+    }
 }

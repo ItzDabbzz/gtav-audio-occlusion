@@ -8,73 +8,66 @@ import { CreateModal } from '../CreateModal';
 import { ProjectFileImporter } from '../ProjectFileImporter';
 
 export const Project = (): JSX.Element => {
-  const {
-    state,
-    fetchProject,
-    saveProject,
-    reloadProject,
-    writeGeneratedFiles,
-    closeProject,
-    setCreateModalOpen,
-  } = useProject();
+    const { state, fetchProject, saveProject, reloadProject, writeGeneratedFiles, closeProject, setCreateModalOpen } =
+        useProject();
 
-  // Reload the in-memory state on mount
-  useEffect(() => {
-    fetchProject();
-  }, [fetchProject]);
+    // Reload the in-memory state on mount
+    useEffect(() => {
+        fetchProject();
+    }, [fetchProject]);
 
-  // Build two different button sets: one for “no project” and one for “project open”
-  const headerOptions = useMemo(() => {
-    if (!state) {
-      return [
-        {
-          icon: <FaFolderPlus />,
-          label: 'New project',
-          onClick: () => setCreateModalOpen(true),
-        },
-        {
-          icon: <FaFolderOpen />,
-          label: 'Load project',
-          onClick: reloadProject,
-        },
-      ];
-    }
-    return [
-      { icon: <FaSave />, label: 'Save project', onClick: saveProject },
-      { icon: <FaFolderOpen />, label: 'Load project', onClick: reloadProject },
-      { icon: <FaFileDownload />, label: 'Write files', onClick: writeGeneratedFiles },
-      { icon: <FaTimes />, label: 'Close project', onClick: closeProject },
-    ];
-  }, [state, saveProject, reloadProject, writeGeneratedFiles, closeProject, setCreateModalOpen]);
+    // Build two different button sets: one for "no project" and one for "project open"
+    const headerOptions = useMemo(() => {
+        if (!state) {
+            return [
+                {
+                    icon: <FaFolderPlus />,
+                    label: 'New project',
+                    onClick: async () => setCreateModalOpen(true),
+                },
+                {
+                    icon: <FaFolderOpen />,
+                    label: 'Load project',
+                    onClick: async () => reloadProject(),
+                },
+            ];
+        }
+        return [
+            { icon: <FaSave />, label: 'Save project', onClick: async () => saveProject() },
+            { icon: <FaFolderOpen />, label: 'Load project', onClick: async () => reloadProject() },
+            { icon: <FaFileDownload />, label: 'Write files', onClick: async () => writeGeneratedFiles() },
+            { icon: <FaTimes />, label: 'Close project', onClick: async () => closeProject() },
+        ];
+    }, [state, saveProject, reloadProject, writeGeneratedFiles, closeProject, setCreateModalOpen]);
 
-  return (
-    <>
-      {/** This Header is always rendered **/}
+    return (
+        <>
+            {/** This Header is always rendered **/}
 
-      <Container>
-        <Header
-          title={state ? `"${state.name}"` : 'gtav-audio-occlusion'}
-          optionalText={
-            state
-              ? `${state.interiors.length} ${state.interiors.length > 1 ? 'Interiors' : 'Interior'} added`
-              : 'Create a new project or open an existing one'
-          }
-          options={headerOptions}
-        />
-        {state ? (
-          <Content>
-            {state.interiors.map((interior, index) => (
-              <Interior key={interior.identifier} index={index} name={interior.identifier}>
-                <InteriorDetails />
-              </Interior>
-            ))}
-          </Content>
-        ) : (
-          <ProjectFileImporter />
-        )}
-      </Container>
+            <Container>
+                <Header
+                    title={state ? `"${state.name}"` : 'gtav-audio-occlusion'}
+                    optionalText={
+                        state
+                            ? `${state.interiors.length} ${state.interiors.length > 1 ? 'Interiors' : 'Interior'} added`
+                            : 'Create a new project or open an existing one'
+                    }
+                    options={headerOptions}
+                />
+                {state ? (
+                    <Content>
+                        {state.interiors.map((interior, index) => (
+                            <Interior key={interior.identifier} index={index} name={interior.identifier}>
+                                <InteriorDetails />
+                            </Interior>
+                        ))}
+                    </Content>
+                ) : (
+                    <ProjectFileImporter />
+                )}
+            </Container>
 
-      <CreateModal />
-    </>
-  );
+            <CreateModal />
+        </>
+    );
 };

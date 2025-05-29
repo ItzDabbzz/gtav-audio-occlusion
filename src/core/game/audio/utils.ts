@@ -5,36 +5,38 @@ import { CMloRoomDef } from '../CMloRoomDef';
 import { naOcclusionPathNodeMetadata } from './naOcclusionPathNodeMetadata';
 
 export const findPathNode = (
-  pathNodeList: naOcclusionPathNodeMetadata[],
-  nodeFrom: Node,
-  nodeTo: Node,
-  pathType: number,
+    pathNodeList: naOcclusionPathNodeMetadata[],
+    nodeFrom: Node,
+    nodeTo: Node,
+    pathType: number,
 ): naOcclusionPathNodeMetadata => {
-  return pathNodeList.find(
-    pathNode =>
-      pathNode.nodeFrom.index === nodeFrom.index &&
-      pathNode.nodeTo.index === nodeTo.index &&
-      pathNode.pathType === pathType,
-  );
+    return pathNodeList.find(
+        pathNode =>
+            pathNode.nodeFrom.index === nodeFrom.index &&
+            pathNode.nodeTo.index === nodeTo.index &&
+            pathNode.pathType === pathType,
+    );
 };
 
 export const addPathNodeToList = (
-  pathNodeList: naOcclusionPathNodeMetadata[],
-  pathNode: naOcclusionPathNodeMetadata,
+    pathNodeList: naOcclusionPathNodeMetadata[],
+    pathNode: naOcclusionPathNodeMetadata,
 ): void => {
-  pathNodeList.push(pathNode);
+    pathNodeList.push(pathNode);
 };
 
 export const hasPathAlreadyBeenFound = (
-  pathNodeList: naOcclusionPathNodeMetadata[],
-  nodeFrom: Node,
-  nodeTo: Node,
+    pathNodeList: naOcclusionPathNodeMetadata[],
+    nodeFrom: Node,
+    nodeTo: Node,
 ): boolean => {
-  return !!pathNodeList.find(
-    pathNode =>
-      pathNode.nodeFrom.index === nodeFrom.index && pathNode.nodeTo.index === nodeTo.index && pathNode.pathType === 3,
-  );
+    return !!pathNodeList.find(
+        pathNode =>
+            pathNode.nodeFrom.index === nodeFrom.index &&
+            pathNode.nodeTo.index === nodeTo.index &&
+            pathNode.pathType === 3,
+    );
 };
 
 export const getInteriorRoomName = (interiorName: string, cMloRoomDef: CMloRoomDef): string =>
-  `${interiorName}_${cMloRoomDef.name}`;
+    `${interiorName}_${cMloRoomDef.name}`;

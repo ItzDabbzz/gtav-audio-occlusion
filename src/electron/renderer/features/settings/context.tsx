@@ -5,13 +5,13 @@ import { isErr, unwrapResult } from '@/electron/common';
 import { SerializedSettings, SettingsAPI } from '@/electron/common/types/settings';
 
 type SettingsProviderProps = {
-  children: React.ReactNode;
+    children: React.ReactNode;
 };
 
 type SettingsContext = {
-  settings: SerializedSettings;
-  fetchSettings: () => Promise<void>;
-  updateSettings: (data: Partial<SerializedSettings>) => Promise<void>;
+    settings: SerializedSettings;
+    fetchSettings: () => Promise<void>;
+    updateSettings: (data: Partial<SerializedSettings>) => Promise<void>;
 };
 
 const { API } = window;
@@ -19,46 +19,46 @@ const { API } = window;
 const settingsContext = createContext<SettingsContext>({} as SettingsContext);
 
 const useSettingsProvider = (): SettingsContext => {
-  const [settings, setSettings] = useState<SerializedSettings>();
+    const [settings, setSettings] = useState<SerializedSettings>();
 
-  const fetchSettings = async (): Promise<void> => {
-    const result: Result<string, SerializedSettings | undefined> = await API.invoke(SettingsAPI.GET);
+    const fetchSettings = async (): Promise<void> => {
+        const result: Result<string, SerializedSettings | undefined> = await API.invoke(SettingsAPI.GET);
 
-    if (isErr(result)) {
-      return console.warn(unwrapResult(result));
-    }
+        if (isErr(result)) {
+            return console.warn(unwrapResult(result));
+        }
 
-    const settings = unwrapResult(result);
-    if (!settings) return;
+        const settings = unwrapResult(result);
+        if (!settings) return;
 
-    setSettings(settings);
-  };
+        setSettings(settings);
+    };
 
-  const updateSettings = async (data: Partial<SerializedSettings>): Promise<void> => {
-    API.send(SettingsAPI.SET, data);
+    const updateSettings = async (data: Partial<SerializedSettings>): Promise<void> => {
+        API.send(SettingsAPI.SET, data);
 
-    await fetchSettings();
-  };
+        await fetchSettings();
+    };
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
+    useEffect(() => {
+        fetchSettings();
+    }, []);
 
-  return { settings, fetchSettings, updateSettings };
+    return { settings, fetchSettings, updateSettings };
 };
 
 export const SettingsProvider = ({ children }: SettingsProviderProps): JSX.Element => {
-  const settings = useSettingsProvider();
+    const settings = useSettingsProvider();
 
-  return <settingsContext.Provider value={settings}>{children}</settingsContext.Provider>;
+    return <settingsContext.Provider value={settings}>{children}</settingsContext.Provider>;
 };
 
 export const useSettings = (): SettingsContext => {
-  const context = useContext(settingsContext);
+    const context = useContext(settingsContext);
 
-  if (!context) {
-    throw new Error('useSettings must be used within an SettingsProvider');
-  }
+    if (!context) {
+        throw new Error('useSettings must be used within an SettingsProvider');
+    }
 
-  return context;
+    return context;
 };

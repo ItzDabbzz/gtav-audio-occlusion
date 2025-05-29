@@ -2,84 +2,100 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
 interface ISectionLinkProps {
-  current: string;
+    current: string;
 }
 
 type ContainerProps = {
-  expanded?: boolean;
+    expanded?: boolean;
 };
 
 export const Container = styled.div<ContainerProps>`
-  height: 100%;
-  width: 100%;
-  max-width: ${({ expanded }) => (expanded ? '160px' : '68px')};
+    height: 100%;
+    width: 100%;
+    max-width: ${({ expanded }) => (expanded ? '190px' : '68px')};
 
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    flex-shrink: 0;
 
-  padding: 16px 8px;
+    padding: 16px 8px;
 
-  background: ${({ theme }) => theme.colors.gray[900]};
-  border-right: 2px solid ${({ theme }) => theme.colors.gray[900]};
+    background: ${({ theme }) => theme.colors.surface1};
+    border-right: 2px solid ${({ theme }) => theme.colors.surface1};
 
-  transition: all 0.2s;
+    transition: all 0.2s;
 `;
 
 export const Section = styled.div`
-  width: 100%;
+    width: 100%;
 
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
 `;
 
-export const TopSection = styled(Section)``;
+export const TopSection = styled(Section)`
+    gap: 16px;
+`;
 
 export const BottomSection = styled(Section)`
-  margin-top: auto;
+    margin-top: auto;
 `;
 
 export const SectionLink = styled(Link)<ISectionLinkProps>`
-  width: 100%;
-  height: 40px;
+    width: 100%;
+    height: 40px;
 
-  min-width: 0;
+    min-width: 0;
 
-  display: flex;
-  justify-content: start;
-  align-items: center;
-  gap: 16px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 16px;
 
-  padding: 16px;
+    padding: 16px;
 
-  border-radius: 4px;
+    border-radius: 4px;
 
-  font-size: 14px;
-  font-weight: 600;
-  color: #fff;
-  text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    color: ${({ theme }) => theme.colors.text};
+    text-decoration: none;
 
-  overflow: hidden;
+    overflow: hidden;
 
-  background: ${({ to, current, theme }) => (to === current ? theme.colors.rose[600] : 'transparent')};
+    background: ${({ to, current, theme }) => (to === current ? theme.colors.surface0 : 'transparent')};
 
-  transition: ease-in-out 0.1s;
+    transition: ease-in-out 0.1s;
 
-  &:hover {
-    background: ${({ theme }) => theme.colors.rose[600]};
-    cursor: pointer;
+    &:hover {
+        background: ${({ theme }) => theme.colors.overlay0};
+        cursor: pointer;
 
-    opacity: 0.8;
-  }
+        opacity: 0.8;
+    }
 
-  & + & {
-    margin-top: 8px;
-  }
+    & + & {
+        margin-top: 8px;
+    }
 
-  > svg {
-    flex-shrink: 0;
-  }
+    > svg {
+        flex-shrink: 0;
+    }
+`;
+
+export const HeaderRow = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 8px; /* space between title & button */
+    padding: 16px; /* optional, match your TopSection padding */
+`;
+
+export const SidebarTitle = styled.h2`
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: ${({ theme }) => theme.colors.text};
 `;

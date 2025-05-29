@@ -10,37 +10,37 @@ import { AppProvider } from './hooks';
 import { ApplicationRoutes } from './routes';
 
 const Container = styled.div`
-  height: 100vh;
-  width: 100vw;
+    height: 100vh;
+    width: 100vw;
 
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
 
-  background: ${({ theme }) => theme.colors.gray[800]};
+    background: ${({ theme }) => theme.colors.gray};
 
-  overflow: hidden;
+    overflow: hidden;
 `;
 
 const HorizontalContainer = styled.div`
-  height: 100%;
-  width: 100%;
+    height: 100%;
+    width: 100%;
 
-  display: flex;
+    display: flex;
 `;
 
 export const App = (): JSX.Element => {
-  return (
-    <AppProvider>
-      <GlobalStyle />
-      <Router>
-        <Container>
-          <HorizontalContainer>
-            <Sidebar />
-            <ApplicationRoutes />
-          </HorizontalContainer>
-        </Container>
-      </Router>
-    </AppProvider>
-  );
+    return (
+        <AppProvider>
+            <GlobalStyle />
+            <Router>
+                <Container>
+                    <HorizontalContainer>
+                        <Sidebar />
+                        <ApplicationRoutes />
+                    </HorizontalContainer>
+                </Container>
+            </Router>
+        </AppProvider>
+    );
 };

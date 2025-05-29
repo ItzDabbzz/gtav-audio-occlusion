@@ -23,298 +23,296 @@ const MAP_DATA_FILE_FILTERS = [{ name: '#map files', extensions: ['ymap.xml'] }]
 const MAP_TYPES_FILE_FILTERS = [{ name: '#typ files', extensions: ['ytyp.xml'] }];
 
 export class ProjectManager {
-  private application: Application;
+    private application: Application;
 
-  public currentProject: Project | null;
+    public currentProject: Project | null;
 
-  constructor(application: Application) {
-    this.application = application;
+    constructor(application: Application) {
+        this.application = application;
 
-    this.currentProject = null;
+        this.currentProject = null;
 
-    ipcMain.handle(ProjectAPI.CREATE_PROJECT, this.createProject.bind(this));
-    ipcMain.handle(ProjectAPI.GET_CURRENT_PROJECT, () => forwardSerializedResult(this.getCurrentProject()));
-    ipcMain.handle(ProjectAPI.CLOSE_PROJECT, this.closeProject.bind(this));
-    ipcMain.handle(ProjectAPI.SELECT_PROJECT_PATH, this.selectProjectPath.bind(this));
-    ipcMain.handle(ProjectAPI.SELECT_MAP_DATA_FILE, this.selectMapDataFile.bind(this));
-    ipcMain.handle(ProjectAPI.SELECT_MAP_TYPES_FILE, this.selectMapTypesFile.bind(this));
-    ipcMain.handle(ProjectAPI.WRITE_GENERATED_FILES, this.writeGeneratedFiles.bind(this));
-    ipcMain.handle(ProjectAPI.SAVE_PROJECT, this.saveProject.bind(this));
-    ipcMain.handle(ProjectAPI.LOAD_PROJECT, this.loadProject.bind(this));
-  }
-
-  public getCurrentProject(): Result<string, Project> {
-    return ok(this.currentProject);
-  }
-
-  /**
-   * Serialize the current project and write it to disk as `project.json`
-   */
-  public async saveProject(): Promise<Result<string, boolean>> {
-    if (!this.currentProject) {
-      return err('NO_PROJECT_OPENED');
+        ipcMain.handle(ProjectAPI.CREATE_PROJECT, this.createProject.bind(this));
+        ipcMain.handle(ProjectAPI.GET_CURRENT_PROJECT, () => forwardSerializedResult(this.getCurrentProject()));
+        ipcMain.handle(ProjectAPI.CLOSE_PROJECT, this.closeProject.bind(this));
+        ipcMain.handle(ProjectAPI.SELECT_PROJECT_PATH, this.selectProjectPath.bind(this));
+        ipcMain.handle(ProjectAPI.SELECT_MAP_DATA_FILE, this.selectMapDataFile.bind(this));
+        ipcMain.handle(ProjectAPI.SELECT_MAP_TYPES_FILE, this.selectMapTypesFile.bind(this));
+        ipcMain.handle(ProjectAPI.WRITE_GENERATED_FILES, this.writeGeneratedFiles.bind(this));
+        ipcMain.handle(ProjectAPI.SAVE_PROJECT, this.saveProject.bind(this));
+        ipcMain.handle(ProjectAPI.LOAD_PROJECT, this.loadProject.bind(this));
     }
 
-    const data = this.currentProject.serialize();
-    const projectFile = path.resolve(this.currentProject.path, 'project.json');
-
-    try {
-      const json = JSON.stringify(data, null, 2);
-      await fs.promises.writeFile(projectFile, json, 'utf-8');
-    } catch (e) {
-      console.error('Failed to save project', e);
-      return err('FAILED_SAVING_PROJECT');
+    public getCurrentProject(): Result<string, Project> {
+        return ok(this.currentProject);
     }
 
-    return ok(true);
-  }
-
-  public async loadProject(_: Event, folder?: string): Promise<Result<string, SerializedProject>> {
-    // 1) pick a folder if needed
-    let projectDir = folder ?? this.currentProject?.path;
-    if (!projectDir) {
-      const [selected] = await selectDirectory();
-      if (!selected) {
-        return err('NO_PROJECT_SELECTED');
-      }
-      projectDir = selected;
-    }
-
-    // 2) read project.json
-    const projectFile = path.resolve(projectDir, 'project.json');
-    if (!fs.existsSync(projectFile)) {
-      return err('PROJECT_FILE_NOT_FOUND');
-    }
-
-    try {
-      const raw = await fs.promises.readFile(projectFile, 'utf-8');
-      const data = JSON.parse(raw);
-
-      // 2) Create an empty Project
-      this.currentProject = new Project({ name: data.name, path: data.path });
-
-      // 3) For each interior in the JSON, rehydrate it from its XML files
-      for (const intData of data.interiors) {
-        const result = await this.addInteriorToProject(this.currentProject, {
-          name: intData.identifier,
-          mapDataFilePath: intData.mapDataFilePath,
-          mapTypesFilePath: intData.mapTypesFilePath,
-        });
-        if (isErr(result)) {
-          // bubbling up any XML‐parsing error (e.g. FAILED_READING_#MAP_FILE, C_MLO_INSTANCE_DEF_NOT_FOUND, …)
-          return result as Err<string>;
+    /**
+     * Serialize the current project and write it to disk as `project.json`
+     */
+    public async saveProject(): Promise<Result<string, boolean>> {
+        if (!this.currentProject) {
+            return err('NO_PROJECT_OPENED');
         }
-      }
-      this.currentProject = Project.deserialize(data);
-      // return the serialized form back to renderer
-      return ok(this.currentProject.serialize());
-    } catch (e) {
-      console.error('Failed loading project', e);
-      return err('FAILED_LOADING_PROJECT');
-    }
-  }
 
-  public async selectProjectPath(): Promise<Result<string, string>> {
-    const [directoryPath] = await selectDirectory();
+        const data = this.currentProject.serialize();
+        const projectFile = path.resolve(this.currentProject.path, 'project.json');
 
-    return ok(directoryPath);
-  }
+        try {
+            const json = JSON.stringify(data, null, 2);
+            await fs.promises.writeFile(projectFile, json, 'utf-8');
+        } catch (e) {
+            console.error('Failed to save project', e);
+            return err('FAILED_SAVING_PROJECT');
+        }
 
-  public async selectMapDataFile(): Promise<Result<string, string>> {
-    const filePaths = await selectFiles(MAP_DATA_FILE_FILTERS);
-
-    const filteredPaths = filePaths.filter(isXMLFilePath);
-
-    const mapDataFilePath = filteredPaths.find(isMapDataFilePath);
-
-    if (!mapDataFilePath) {
-      return err('INVALID_FILE');
+        return ok(true);
     }
 
-    return ok(mapDataFilePath);
-  }
+    public async loadProject(_: Event, folder?: string): Promise<Result<string, SerializedProject>> {
+        // 1) pick a folder if needed
+        let projectDir = folder ?? this.currentProject?.path;
+        if (!projectDir) {
+            const [selected] = await selectDirectory();
+            if (!selected) {
+                return err('NO_PROJECT_SELECTED');
+            }
+            projectDir = selected;
+        }
 
-  public async selectMapTypesFile(): Promise<Result<string, string>> {
-    const filePaths = await selectFiles(MAP_TYPES_FILE_FILTERS);
+        // 2) read project.json
+        const projectFile = path.resolve(projectDir, 'project.json');
+        if (!fs.existsSync(projectFile)) {
+            return err('PROJECT_FILE_NOT_FOUND');
+        }
 
-    const filteredPaths = filePaths.filter(isXMLFilePath);
+        try {
+            const raw = await fs.promises.readFile(projectFile, 'utf-8');
+            const data = JSON.parse(raw);
 
-    const mapTypesFilePath = filteredPaths.find(isMapTypesFilePath);
+            // 2) Create an empty Project
+            this.currentProject = new Project({ name: data.name, path: data.path });
 
-    if (!mapTypesFilePath) {
-      return err('INVALID_FILE');
+            // 3) For each interior in the JSON, rehydrate it from its XML files
+            for (const intData of data.interiors) {
+                const result = await this.addInteriorToProject(this.currentProject, {
+                    name: intData.identifier,
+                    mapDataFilePath: intData.mapDataFilePath,
+                    mapTypesFilePath: intData.mapTypesFilePath,
+                });
+                if (isErr(result)) {
+                    // bubbling up any XML‐parsing error (e.g. FAILED_READING_#MAP_FILE, C_MLO_INSTANCE_DEF_NOT_FOUND, …)
+                    return result as Err<string>;
+                }
+            }
+            // return the serialized form back to renderer
+            return ok(this.currentProject.serialize());
+        } catch (e) {
+            console.error('Failed loading project', e);
+            return err('FAILED_LOADING_PROJECT');
+        }
     }
 
-    return ok(mapTypesFilePath);
-  }
+    public async selectProjectPath(): Promise<Result<string, string>> {
+        const [directoryPath] = await selectDirectory();
 
-  public async addInteriorToProject(
-    project: Project,
-    { name, mapDataFilePath, mapTypesFilePath }: CreateInteriorDTO,
-  ): Promise<Result<string, boolean>> {
-    let mapDataFile: Ymap;
-    let mapTypesFile: Ytyp;
-
-    try {
-      mapDataFile = await this.application.codeWalkerFormat.readFile<Ymap>(mapDataFilePath);
-    } catch {
-      return err('FAILED_READING_#MAP_FILE');
+        return ok(directoryPath);
     }
 
-    try {
-      mapTypesFile = await this.application.codeWalkerFormat.readFile<Ytyp>(mapTypesFilePath);
-    } catch {
-      return err('FAILED_READING_#TYP_FILE');
+    public async selectMapDataFile(): Promise<Result<string, string>> {
+        const filePaths = await selectFiles(MAP_DATA_FILE_FILTERS);
+
+        const filteredPaths = filePaths.filter(isXMLFilePath);
+
+        const mapDataFilePath = filteredPaths.find(isMapDataFilePath);
+
+        if (!mapDataFilePath) {
+            return err('INVALID_FILE');
+        }
+
+        return ok(mapDataFilePath);
     }
 
-    const mapData = this.application.codeWalkerFormat.parseCMapData(mapDataFile);
-    const mapTypes = this.application.codeWalkerFormat.parseCMapTypes(mapTypesFile);
+    public async selectMapTypesFile(): Promise<Result<string, string>> {
+        const filePaths = await selectFiles(MAP_TYPES_FILE_FILTERS);
 
-    const mloInstance = getCMloInstanceDef(mapData, mapTypes);
+        const filteredPaths = filePaths.filter(isXMLFilePath);
 
-    if (!mloInstance) {
-      return err('C_MLO_INSTANCE_DEF_NOT_FOUND');
+        const mapTypesFilePath = filteredPaths.find(isMapTypesFilePath);
+
+        if (!mapTypesFilePath) {
+            return err('INVALID_FILE');
+        }
+
+        return ok(mapTypesFilePath);
     }
 
-    const interiorPath = path.resolve(project.path, sanitizePath(name));
+    public async addInteriorToProject(
+        project: Project,
+        { name, mapDataFilePath, mapTypesFilePath }: CreateInteriorDTO,
+    ): Promise<Result<string, boolean>> {
+        let mapDataFile: Ymap;
+        let mapTypesFile: Ytyp;
 
-    const interior = new Interior({
-      identifier: name,
-      path: interiorPath,
-      mapDataFilePath,
-      mapTypesFilePath,
-      mapData,
-      mapTypes,
-      mloInstance,
-    });
+        try {
+            mapDataFile = await this.application.codeWalkerFormat.readFile<Ymap>(mapDataFilePath);
+        } catch {
+            return err('FAILED_READING_#MAP_FILE');
+        }
 
-    project.addInterior(interior);
+        try {
+            mapTypesFile = await this.application.codeWalkerFormat.readFile<Ytyp>(mapTypesFilePath);
+        } catch {
+            return err('FAILED_READING_#TYP_FILE');
+        }
 
-    return ok(true);
-  }
+        const mapData = this.application.codeWalkerFormat.parseCMapData(mapDataFile);
+        const mapTypes = this.application.codeWalkerFormat.parseCMapTypes(mapTypesFile);
 
-  public async createProject(_: Event, { name, path, interior }: CreateProjectDTO): Promise<Result<string, boolean>> {
-    this.currentProject = new Project({ name, path });
+        const mloInstance = getCMloInstanceDef(mapData, mapTypes);
 
-    const result = await this.addInteriorToProject(this.currentProject, interior);
+        if (!mloInstance) {
+            return err('C_MLO_INSTANCE_DEF_NOT_FOUND');
+        }
 
-    if (isErr(result)) {
-      return result;
+        const interiorPath = path.resolve(project.path, sanitizePath(name));
+
+        const interior = new Interior({
+            identifier: name,
+            path: interiorPath,
+            mapDataFilePath,
+            mapTypesFilePath,
+            mapData,
+            mapTypes,
+            mloInstance,
+        });
+
+        project.addInterior(interior);
+
+        return ok(true);
     }
 
-    return ok(true);
-  }
+    public async createProject(_: Event, { name, path, interior }: CreateProjectDTO): Promise<Result<string, boolean>> {
+        this.currentProject = new Project({ name, path });
 
-  public closeProject(): Result<string, boolean> {
-    this.currentProject = null;
+        const result = await this.addInteriorToProject(this.currentProject, interior);
 
-    return ok(true);
-  }
+        if (isErr(result)) {
+            return result;
+        }
 
-  public async writeInteriorsOcclusionMetadata(): Promise<Result<string, boolean>> {
-    const projectResult = this.application.projectManager.getCurrentProject();
-
-    if (isErr(projectResult)) {
-      return projectResult;
+        return ok(true);
     }
 
-    const project = unwrapResult(projectResult);
+    public closeProject(): Result<string, boolean> {
+        this.currentProject = null;
 
-    for (const interior of project.interiors) {
-      const { naOcclusionInteriorMetadata, path } = interior;
-
-      naOcclusionInteriorMetadata.refresh();
-
-      let filePath: string;
-
-      try {
-        filePath = await this.application.codeWalkerFormat.writeNaOcclusionInteriorMetadata(
-          path,
-          naOcclusionInteriorMetadata,
-          this.application.settings.writeDebugInfoToXML,
-        );
-      } catch {
-        return err('FAILED_TO_WRITE_NA_OCCLUSION_INTERIOR_METADATA_FILE');
-      }
-
-      interior.naOcclusionInteriorMetadataPath = filePath;
+        return ok(true);
     }
 
-    return ok(true);
-  }
+    public async writeInteriorsOcclusionMetadata(): Promise<Result<string, boolean>> {
+        const projectResult = this.application.projectManager.getCurrentProject();
 
-  public async writeDat151(): Promise<Result<string, string>> {
-    const projectResult = this.application.projectManager.getCurrentProject();
+        if (isErr(projectResult)) {
+            return projectResult;
+        }
 
-    if (isErr(projectResult)) {
-      return projectResult;
+        const project = unwrapResult(projectResult);
+
+        for (const interior of project.interiors) {
+            const { naOcclusionInteriorMetadata, path } = interior;
+
+            naOcclusionInteriorMetadata.refresh();
+
+            let filePath: string;
+
+            try {
+                filePath = await this.application.codeWalkerFormat.writeNaOcclusionInteriorMetadata(
+                    path,
+                    naOcclusionInteriorMetadata,
+                    this.application.settings.writeDebugInfoToXML,
+                );
+            } catch {
+                return err('FAILED_TO_WRITE_NA_OCCLUSION_INTERIOR_METADATA_FILE');
+            }
+
+            interior.naOcclusionInteriorMetadataPath = filePath;
+        }
+
+        return ok(true);
     }
 
-    const project = unwrapResult(projectResult);
+    public async writeDat151(): Promise<Result<string, string>> {
+        const projectResult = this.application.projectManager.getCurrentProject();
 
-    const audioGameData = project.interiors.flatMap(interior => interior.getAudioGameData());
+        if (isErr(projectResult)) {
+            return projectResult;
+        }
 
-    let filePath: string;
+        const project = unwrapResult(projectResult);
 
-    try {
-      filePath = await this.application.codeWalkerFormat.writeDat151(project.path, audioGameData);
-    } catch {
-      return err('FAILED_TO_WRITE_DAT_151_FILE');
+        const audioGameData = project.interiors.flatMap(interior => interior.getAudioGameData());
+
+        let filePath: string;
+
+        try {
+            filePath = await this.application.codeWalkerFormat.writeDat151(project.path, audioGameData);
+        } catch {
+            return err('FAILED_TO_WRITE_DAT_151_FILE');
+        }
+
+        // biome-ignore lint/complexity/noForEach: <explanation>
+        project.interiors.forEach(interior => {
+            interior.audioGameDataPath = filePath;
+        });
+
+        return ok(filePath);
     }
+    public async writeDat15(): Promise<Result<string, string>> {
+        const projectResult = this.application.projectManager.getCurrentProject();
 
-    // biome-ignore lint/complexity/noForEach: <explanation>
-    project.interiors.forEach(interior => {
-      interior.audioGameDataPath = filePath;
-    });
+        if (isErr(projectResult)) {
+            return projectResult;
+        }
 
-    return ok(filePath);
-  }
-  public async writeDat15(): Promise<Result<string, string>> {
-    const projectResult = this.application.projectManager.getCurrentProject();
+        const project = unwrapResult(projectResult);
 
-    if (isErr(projectResult)) {
-      return projectResult;
+        const audioGameData = project.interiors.map(interior => interior.getInteriorName()).join('\n');
+
+        let filePath: string;
+
+        try {
+            filePath = await this.application.codeWalkerFormat.writeDat15(project.path, audioGameData);
+        } catch {
+            return err('FAILED_TO_WRITE_DAT_15_FILE');
+        }
+
+        // biome-ignore lint/complexity/noForEach: <explanation>
+        project.interiors.forEach(interior => {
+            interior.audioMixDataPath = filePath;
+        });
+
+        return ok(filePath);
     }
+    public async writeGeneratedFiles(): Promise<Result<string, boolean>> {
+        const [interiorsMetadataResult, dat151Result, dat15Result] = await Promise.all([
+            this.writeInteriorsOcclusionMetadata(),
+            this.writeDat151(),
+            this.writeDat15(),
+        ]);
 
-    const project = unwrapResult(projectResult);
+        if (isErr(interiorsMetadataResult)) {
+            return interiorsMetadataResult;
+        }
 
-    const audioGameData = project.interiors.flatMap(interior => interior.getInteriorName());
+        if (isErr(dat151Result)) {
+            return dat151Result;
+        }
 
-    let filePath: string;
+        if (isErr(dat15Result)) {
+            return dat15Result;
+        }
 
-    try {
-      filePath = await this.application.codeWalkerFormat.writeDat15(project.path, audioGameData);
-    } catch {
-      return err('FAILED_TO_WRITE_DAT_15_FILE');
+        return ok(true);
     }
-
-    // biome-ignore lint/complexity/noForEach: <explanation>
-    project.interiors.forEach(interior => {
-      interior.audioMixDataPath = filePath;
-    });
-
-    return ok(filePath);
-  }
-
-  public async writeGeneratedFiles(): Promise<Result<string, boolean>> {
-    const [interiorsMetadataResult, dat151Result, dat15Result] = await Promise.all([
-      this.writeInteriorsOcclusionMetadata(),
-      this.writeDat151(),
-      this.writeDat15(),
-    ]);
-
-    if (isErr(interiorsMetadataResult)) {
-      return interiorsMetadataResult;
-    }
-
-    if (isErr(dat151Result)) {
-      return dat151Result;
-    }
-
-    if (isErr(dat15Result)) {
-      return dat15Result;
-    }
-
-    return ok(true);
-  }
 }

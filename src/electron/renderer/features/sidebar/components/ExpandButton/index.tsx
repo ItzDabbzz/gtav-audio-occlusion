@@ -1,15 +1,15 @@
 import React from 'react';
 import { TbLayoutSidebarLeftCollapse, TbLayoutSidebarLeftExpand } from 'react-icons/tb';
-
-import { Button } from './styles';
+import { ExpandButtonWrapper } from './styles';
 
 type ExpandButtonProps = {
-  expanded?: boolean;
-  onClick: () => void;
+    expanded: boolean;
+    onClick: () => void;
 };
 
-export const ExpandButton = ({ ...props }: ExpandButtonProps): JSX.Element => (
-  <Button {...props}>
-    {props.expanded ? <TbLayoutSidebarLeftCollapse size={18} /> : <TbLayoutSidebarLeftExpand size={18} />}
-  </Button>
+export const ExpandButton = ({ expanded, onClick }: ExpandButtonProps): JSX.Element => (
+    <ExpandButtonWrapper expanded={expanded} onClick={onClick}>
+        {expanded ? <TbLayoutSidebarLeftCollapse size={18} /> : <TbLayoutSidebarLeftExpand size={18} />}
+        <span>Toggle Sidebar</span>
+    </ExpandButtonWrapper>
 );

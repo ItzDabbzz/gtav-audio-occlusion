@@ -6,33 +6,33 @@ import { naOcclusionInteriorMetadata } from '../game/audio/naOcclusionInteriorMe
 import { naOcclusionPortalInfoMetadata } from '../game/audio/naOcclusionPortalInfoMetadata';
 
 export class Node {
-  public interiorProxyHash: number;
+    public interiorProxyHash: number;
 
-  public room: CMloRoomDef;
+    public room: CMloRoomDef;
 
-  public index: number;
-  public key: number;
+    public index: number;
+    public key: number;
 
-  public portalInfoList: naOcclusionPortalInfoMetadata[];
+    public portalInfoList: naOcclusionPortalInfoMetadata[];
 
-  public edges: Node[];
+    public edges: Node[];
 
-  constructor(interiorMetadata: naOcclusionInteriorMetadata, room: CMloRoomDef, index: number) {
-    this.interiorProxyHash = interiorMetadata.interiorProxyHash;
+    constructor(interiorMetadata: naOcclusionInteriorMetadata, room: CMloRoomDef, index: number) {
+        this.interiorProxyHash = interiorMetadata.interiorProxyHash;
 
-    this.room = room;
+        this.room = room;
 
-    this.index = index;
-    this.key = this.room.name === 'limbo' ? joaat('outside') : this.interiorProxyHash ^ joaat(this.room.name);
+        this.index = index;
+        this.key = this.room.name === 'limbo' ? joaat('outside') : this.interiorProxyHash ^ joaat(this.room.name);
 
-    this.portalInfoList = interiorMetadata.portalInfoList.filter(
-      ({ enabled, roomIdx }) => enabled && roomIdx === this.index,
-    );
+        this.portalInfoList = interiorMetadata.portalInfoList.filter(
+            ({ enabled, roomIdx }) => enabled && roomIdx === this.index,
+        );
 
-    this.edges = [];
-  }
+        this.edges = [];
+    }
 
-  public findRelevantPortalInfoList(nodeTo: Node): naOcclusionPortalInfoMetadata[] {
-    return this.portalInfoList.filter(portalInfo => portalInfo.destRoomIdx === nodeTo.index);
-  }
+    public findRelevantPortalInfoList(nodeTo: Node): naOcclusionPortalInfoMetadata[] {
+        return this.portalInfoList.filter(portalInfo => portalInfo.destRoomIdx === nodeTo.index);
+    }
 }

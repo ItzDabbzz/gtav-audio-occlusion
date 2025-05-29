@@ -6,12 +6,12 @@ export * from './components/Entities';
 const { API } = window;
 
 export const updatePortalEntity = async (
-  identifier: string,
-  portalInfoIndex: number,
-  entityIndex: number,
-  data: Partial<SerializedNaOcclusionPortalEntityMetadata>,
+    identifier: string,
+    portalInfoIndex: number,
+    entityIndex: number,
+    data: Partial<SerializedNaOcclusionPortalEntityMetadata>,
 ): Promise<void> => {
-  console.log(`Updating entity ${entityIndex} from portal ${portalInfoIndex}: `, data);
+    console.log(`Updating entity ${entityIndex} from portal ${portalInfoIndex}: `, data);
 
-  API.send(InteriorAPI.UPDATE_PORTAL_INFO_ENTITY, identifier, portalInfoIndex, entityIndex, data);
+    API.send(InteriorAPI.UPDATE_PORTAL_INFO_ENTITY, identifier, portalInfoIndex, entityIndex, data);
 };

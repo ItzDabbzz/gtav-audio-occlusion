@@ -6,12 +6,12 @@ import CableChewingSnail from '@/electron/renderer/assets/cablechewingsnail.png'
 import { StyledContainer, Image, Text } from './styles';
 
 export const NoProject = (): JSX.Element => {
-  return (
-    <StyledContainer>
-      <Image src={CableChewingSnail} />
-      <Text>
-        Oops... It seems that you don't have a project. <Link to="/">Create one</Link> before snailing around!
-      </Text>
-    </StyledContainer>
-  );
+    return (
+        <StyledContainer>
+            <Image src={CableChewingSnail} />
+            <Text>
+                Oops... It seems that you don't have a project. <Link to="/">Create one</Link> before snailing around!
+            </Text>
+        </StyledContainer>
+    );
 };

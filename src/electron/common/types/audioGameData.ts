@@ -1,34 +1,34 @@
 export type SerializedInteriorAudioGameData = {
-  flags: number;
-  name: string;
-  unk0: number;
-  unk1: number;
-  unk2: number;
-  rooms: string[];
+    flags: number;
+    name: string;
+    unk0: number;
+    unk1: number;
+    unk2: number;
+    rooms: string[];
 };
 
 export type SerializedInteriorRoomAudioGameData = {
-  name: string;
+    Name: string;
 
-  flags: number;
+    Flags: number;
 
-  mloRoom: string;
-  zone: string;
+    RoomName: string;
+    AmbientZone: string;
 
-  unk02: number;
-  unk03: number;
-  reverb: number;
-  echo: number;
+    InteriorType: number;
+    ReverbSmall: number;
+    ReverbMedium: number;
+    ReverbLarge: number;
 
-  sound: string;
+    RoomToneSound: string;
 
-  unk07: number;
-  unk08: number;
-  unk09: number;
-  unk10: number;
-  unk11: number;
-  unk12: number;
+    RainType: number;
+    ExteriorAudibility: number;
+    RoomOcclusionDamping: number;
+    NonMarkedPortalOcclusion: number;
+    DistanceFromPortalForOcclusion: number;
+    DistanceFromPortalFadeDistance: number;
 
-  unk13: string;
-  soundSet: string;
+    WeaponMetrics: string;
+    InteriorWallaSoundSet: string;
 };

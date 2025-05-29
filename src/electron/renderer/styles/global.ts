@@ -76,9 +76,9 @@ export const GlobalStyle = createGlobalStyle`
     height: 2px;
     width: 2px;
 
-    background-color: ${({ theme }) => theme.colors.gray[950]};
+    background-color: ${({ theme }) => theme.colors.gray};
   }
   ::-webkit-scrollbar-thumb {
-    background-color: ${({ theme }) => theme.colors.rose[600]};
+    background-color: ${({ theme }) => theme.colors.rose};
   }
 `;

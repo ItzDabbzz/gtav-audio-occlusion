@@ -10,28 +10,28 @@ import { InteriorRoomAudioGameDataList } from '../InteriorRoomAudioGameDataList'
 const HEADER_TITLE = 'Rooms';
 
 export const Rooms = (): JSX.Element => {
-  const { state } = useProject();
+    const { state } = useProject();
 
-  if (!state) {
-    return <NoProject />;
-  }
+    if (!state) {
+        return <NoProject />;
+    }
 
-  const headerOptionalText = `"${state.name}"`;
+    const headerOptionalText = `"${state.name}"`;
 
-  return (
-    <Container>
-      <Header title={HEADER_TITLE} optionalText={headerOptionalText} />
-      <Content>
-        {state.interiors.map((interior, index) => {
-          const { identifier } = interior;
+    return (
+        <Container>
+            <Header title={HEADER_TITLE} optionalText={headerOptionalText} />
+            <Content>
+                {state.interiors.map((interior, index) => {
+                    const { identifier } = interior;
 
-          return (
-            <Interior key={identifier} index={index} name={identifier}>
-              <InteriorRoomAudioGameDataList />
-            </Interior>
-          );
-        })}
-      </Content>
-    </Container>
-  );
+                    return (
+                        <Interior key={identifier} index={index} name={identifier}>
+                            <InteriorRoomAudioGameDataList />
+                        </Interior>
+                    );
+                })}
+            </Content>
+        </Container>
+    );
 };
