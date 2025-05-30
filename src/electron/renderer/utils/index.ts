@@ -1,7 +1,7 @@
 export const parseHexToString = (value?: number): string => {
-    // if (value == null || isNaN(value)) {
-    //     return '';
-    // }
+    if (value == null || isNaN(value)) {
+        return '0x00000000';
+    }
     return `0x${value.toString(16).toUpperCase()}`;
 };
 
