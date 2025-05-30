@@ -1,9 +1,9 @@
 export const parseHexToString = (value: number): string => {
-  const stringifiedValue = value.toString(16);
+    const stringifiedValue = value.toString(16);
 
-  const paddedStringifiedValue = stringifiedValue.padEnd(8, '0');
+    const paddedStringifiedValue = stringifiedValue.padEnd(8, '0');
 
-  const upperCasePaddedStringifiedValue = paddedStringifiedValue.toUpperCase();
+    const upperCasePaddedStringifiedValue = paddedStringifiedValue.toUpperCase();
 
-  return `0x${upperCasePaddedStringifiedValue}`;
+    return `0x${upperCasePaddedStringifiedValue}`;
 };

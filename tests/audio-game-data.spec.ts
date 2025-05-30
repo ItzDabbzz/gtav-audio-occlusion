@@ -17,37 +17,37 @@ let codeWalkerFormat: CodeWalkerFormat;
 let audioGameData: AudioGameData;
 
 const doesFileExist = async (filePath: string) => {
-  try {
-    await fs.access(filePath);
+    try {
+        await fs.access(filePath);
 
-    return true;
-  } catch {
-    return false;
-  }
+        return true;
+    } catch {
+        return false;
+    }
 };
 
 describe('Interior audio game data', () => {
-  beforeAll(async () => {
-    codeWalkerFormat = new CodeWalkerFormat();
+    beforeAll(async () => {
+        codeWalkerFormat = new CodeWalkerFormat();
 
-    const rawMapData = await codeWalkerFormat.readFile<XML.Ymap>(YMAP_FILE_PATH);
-    const rawMapTypes = await codeWalkerFormat.readFile<XML.Ytyp>(YTYP_FILE_PATH);
+        const rawMapData = await codeWalkerFormat.readFile<XML.Ymap>(YMAP_FILE_PATH);
+        const rawMapTypes = await codeWalkerFormat.readFile<XML.Ytyp>(YTYP_FILE_PATH);
 
-    const mapData = codeWalkerFormat.parseCMapData(rawMapData);
-    const mapTypes = codeWalkerFormat.parseCMapTypes(rawMapTypes);
+        const mapData = codeWalkerFormat.parseCMapData(rawMapData);
+        const mapTypes = codeWalkerFormat.parseCMapTypes(rawMapTypes);
 
-    const instance = getCMloInstanceDef(mapData, mapTypes);
+        const instance = getCMloInstanceDef(mapData, mapTypes);
 
-    audioGameData = [createInteriorAudioGameData(instance), ...createInteriorRoomAudioGameDataList(instance)];
-  });
+        audioGameData = [createInteriorAudioGameData(instance), ...createInteriorRoomAudioGameDataList(instance)];
+    });
 
-  it('should be able to write the interior audio game data', async () => {
-    const targetPath = path.resolve('tests');
+    it('should be able to write the interior audio game data', async () => {
+        const targetPath = path.resolve('tests');
 
-    const filePath = await codeWalkerFormat.writeDat151(targetPath, audioGameData);
+        const filePath = await codeWalkerFormat.writeDat151(targetPath, audioGameData);
 
-    expect(await doesFileExist(filePath)).toBeTruthy();
+        expect(await doesFileExist(filePath)).toBeTruthy();
 
-    await fs.unlink(filePath);
-  });
+        await fs.unlink(filePath);
+    });
 });

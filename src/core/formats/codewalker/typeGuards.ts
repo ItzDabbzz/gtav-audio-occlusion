@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import * as XML from '../../types/xml';
 
 const hasProperties = <T>(object: T, properties: (keyof T)[]): boolean => {

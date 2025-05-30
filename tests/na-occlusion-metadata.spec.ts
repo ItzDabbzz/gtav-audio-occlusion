@@ -17,64 +17,50 @@ let codeWalkerFormat: CodeWalkerFormat;
 let interiorMetadata: naOcclusionInteriorMetadata;
 
 const doesFileExist = async (filePath: string) => {
-  try {
-    await fs.access(filePath);
+    try {
+        await fs.access(filePath);
 
-    return true;
-  } catch {
-    return false;
-  }
+        return true;
+    } catch {
+        return false;
+    }
 };
 
 describe('Interior audio occlusion', () => {
-  beforeAll(async () => {
-    codeWalkerFormat = new CodeWalkerFormat();
+    beforeAll(async () => {
+        codeWalkerFormat = new CodeWalkerFormat();
 
-    const rawMapData = await codeWalkerFormat.readFile<XML.Ymap>(YMAP_FILE_PATH);
-    const rawMapTypes = await codeWalkerFormat.readFile<XML.Ytyp>(YTYP_FILE_PATH);
+        const rawMapData = await codeWalkerFormat.readFile<XML.Ymap>(YMAP_FILE_PATH);
+        const rawMapTypes = await codeWalkerFormat.readFile<XML.Ytyp>(YTYP_FILE_PATH);
 
-    const mapData = codeWalkerFormat.parseCMapData(rawMapData);
-    const mapTypes = codeWalkerFormat.parseCMapTypes(rawMapTypes);
+        const mapData = codeWalkerFormat.parseCMapData(rawMapData);
+        const mapTypes = codeWalkerFormat.parseCMapTypes(rawMapTypes);
 
-    const instance = getCMloInstanceDef(mapData, mapTypes);
+        const instance = getCMloInstanceDef(mapData, mapTypes);
 
-    interiorMetadata = createNaOcclusionInteriorMetadata(instance);
-  });
+        interiorMetadata = createNaOcclusionInteriorMetadata(instance);
+    });
 
-  it('should be able to generate v_shop_247 path nodes correctly', async () => {
-    const expectedPathNodes = [
-      2124924646,
-      -2124924644,
-      -1174415892,
-      1174415894,
-      2124924647,
-      -2124924643,
-      950508754,
-      -950508750,
-      -1174415891,
-      1174415895,
-      2124924648,
-      -2124924642,
-      950508755,
-      -950508749,
-      -1174415890,
-      1174415896,
-    ];
+    it('should be able to generate v_shop_247 path nodes correctly', async () => {
+        const expectedPathNodes = [
+            2124924646, -2124924644, -1174415892, 1174415894, 2124924647, -2124924643, 950508754, -950508750,
+            -1174415891, 1174415895, 2124924648, -2124924642, 950508755, -950508749, -1174415890, 1174415896,
+        ];
 
-    const pathNodesKeys = interiorMetadata.pathNodeList.map(pathNode => pathNode.key);
+        const pathNodesKeys = interiorMetadata.pathNodeList.map(pathNode => pathNode.key);
 
-    const includesAllPathNodes = expectedPathNodes.every(pathNode => pathNodesKeys.includes(pathNode));
+        const includesAllPathNodes = expectedPathNodes.every(pathNode => pathNodesKeys.includes(pathNode));
 
-    expect(includesAllPathNodes).toBeTruthy();
-  });
+        expect(includesAllPathNodes).toBeTruthy();
+    });
 
-  it('should be able to write the interior audio occlusion metadata', async () => {
-    const targetPath = path.resolve('tests');
+    it('should be able to write the interior audio occlusion metadata', async () => {
+        const targetPath = path.resolve('tests');
 
-    const filePath = await codeWalkerFormat.writeNaOcclusionInteriorMetadata(targetPath, interiorMetadata);
+        const filePath = await codeWalkerFormat.writeNaOcclusionInteriorMetadata(targetPath, interiorMetadata);
 
-    expect(await doesFileExist(filePath)).toBeTruthy();
+        expect(await doesFileExist(filePath)).toBeTruthy();
 
-    await fs.unlink(filePath);
-  });
+        await fs.unlink(filePath);
+    });
 });
