@@ -6,24 +6,25 @@ import { InteriorAPI } from '@/electron/common/types/interior';
 import type { SerializedInterior } from '@/electron/common/types/interior';
 
 type InteriorProviderProps = {
-    identifier: string;
+    identifiers: string[];
     children: React.ReactNode;
 };
 
 interface IInteriorContext {
-    interior: SerializedInterior;
-
-    fetchInterior: () => Promise<void>;
+    interiors: Record<string, SerializedInterior | undefined>;
+    fetchInterior: (identifier: string) => Promise<void>;
+    addInterior: (identifier: string) => void;
+    removeInterior: (identifier: string) => void;
 }
 
 const { API } = window;
 
 const interiorContext = createContext<IInteriorContext>({} as IInteriorContext);
 
-const useInteriorProvider = (identifier: string): IInteriorContext => {
-    const [interior, setInterior] = useState<SerializedInterior>();
+const useInteriorProvider = (initialIdentifiers: string[]): IInteriorContext => {
+    const [interiors, setInteriors] = useState<Record<string, SerializedInterior | undefined>>({});
 
-    const fetchInterior = async (): Promise<void> => {
+    const fetchInterior = async (identifier: string): Promise<void> => {
         const result: Result<string, SerializedInterior | undefined> = await API.invoke(
             InteriorAPI.GET_INTERIOR,
             identifier,
@@ -36,20 +37,35 @@ const useInteriorProvider = (identifier: string): IInteriorContext => {
         const interior = unwrapResult(result);
         if (!interior) return;
 
-        setInterior(interior);
+        setInteriors(prev => ({ ...prev, [identifier]: interior }));
     };
 
-    useEffect(() => {
-        fetchInterior();
-    }, []);
+    const addInterior = (identifier: string) => {
+        if (!interiors[identifier]) {
+            fetchInterior(identifier);
+        }
+    };
 
-    return { interior, fetchInterior };
+    const removeInterior = (identifier: string) => {
+        setInteriors(prev => {
+            const { [identifier]: _, ...rest } = prev;
+            return rest;
+        });
+    };
+
+    // Fetch all initial interiors on mount
+    useEffect(() => {
+        initialIdentifiers.forEach(fetchInterior);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialIdentifiers.join(',')]);
+
+    return { interiors, fetchInterior, addInterior, removeInterior };
 };
 
-export const InteriorProvider = ({ identifier, children }: InteriorProviderProps): JSX.Element => {
-    const interior = useInteriorProvider(identifier);
+export const InteriorProvider = ({ identifiers, children }: InteriorProviderProps): JSX.Element => {
+    const contextValue = useInteriorProvider(identifiers);
 
-    return <interiorContext.Provider value={interior}>{children}</interiorContext.Provider>;
+    return <interiorContext.Provider value={contextValue}>{children}</interiorContext.Provider>;
 };
 
 export const useInterior = (): IInteriorContext => {

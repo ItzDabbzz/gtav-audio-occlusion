@@ -1,44 +1,38 @@
-import React, { createContext, type ReactNode, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ThemeProvider as SCThemeProvider } from 'styled-components';
 import { themes, ThemeKey } from './themes';
-import { GlobalStyle } from './global';
+import { useSettings } from '@/electron/renderer/features/settings/context';
 
-interface Ctx {
+interface ThemeCtx {
     themeKey: ThemeKey;
-    setThemeKey: (t: ThemeKey) => void;
+    setThemeKey: (k: ThemeKey) => void;
     theme: (typeof themes)[ThemeKey];
 }
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-const ThemeCtx = createContext<Ctx>(null!);
 
-export const AppThemeProvider = ({ children }: { children: ReactNode }): JSX.Element => {
-    const [themeKey, setThemeKey] = useState<ThemeKey>('tailwind');
+const ThemeContext = createContext<ThemeCtx>({} as any);
 
-    // hydrate from localStorage
-    useEffect(() => {
-        const stored = localStorage.getItem('app-theme') as ThemeKey;
-        if (stored && themes[stored]) setThemeKey(stored);
-    }, []);
+export const ThemeProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
+    const { settings, updateSettings } = useSettings();
+    const defaultKey = (settings?.savedTheme as ThemeKey) ?? ('tailwind' as ThemeKey);
 
-    // persist on change
-    useEffect(() => {
-        localStorage.setItem('app-theme', themeKey);
-    }, [themeKey]);
-
+    const [themeKey, setThemeKey] = useState<ThemeKey>(defaultKey);
     const theme = themes[themeKey];
 
+    useEffect(() => {
+        if (settings?.savedTheme) setThemeKey(settings.savedTheme as ThemeKey);
+    }, [settings?.savedTheme]);
+
+    // Persist theme changes
+    const handleSetThemeKey = (k: ThemeKey) => {
+        setThemeKey(k);
+        updateSettings({ savedTheme: k });
+    };
+
     return (
-        <ThemeCtx.Provider value={{ themeKey, setThemeKey, theme }}>
-            <SCThemeProvider theme={theme as any}>
-                <GlobalStyle />
-                {children}
-            </SCThemeProvider>
-        </ThemeCtx.Provider>
+        <ThemeContext.Provider value={{ themeKey, setThemeKey: handleSetThemeKey, theme }}>
+            <SCThemeProvider theme={theme}>{children}</SCThemeProvider>
+        </ThemeContext.Provider>
     );
 };
 
-export function useAppTheme(): Ctx {
-    const ctx = useContext(ThemeCtx);
-    if (!ctx) throw new Error('`useAppTheme` must be inside `<AppThemeProvider>`');
-    return ctx;
-}
+export const useAppTheme = () => useContext(ThemeContext);

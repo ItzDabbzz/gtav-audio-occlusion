@@ -5,14 +5,15 @@ import { InteriorProvider } from '../../context';
 import { Container, Header, Title } from './styles';
 
 type InteriorProps = {
+    identifier: string;
     index: number;
     name: string;
     children: React.ReactNode;
 };
 
-export const Interior = ({ index, name, children }: InteriorProps): JSX.Element => {
+export const Interior = ({ identifier, index, name, children }: InteriorProps): JSX.Element => {
     return (
-        <InteriorProvider identifier={name}>
+        <InteriorProvider identifiers={[identifier]}>
             <Container>
                 <Header>
                     <Title>

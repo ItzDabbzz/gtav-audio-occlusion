@@ -1,12 +1,13 @@
 import React from 'react';
 
-import { useInterior } from '@/electron/renderer/features/interior';
-
 import { Container, Section, SectionHeader, Horizontal, Entry, Path } from './styles';
+import { SerializedInterior } from '@/electron/common/types/interior';
 
-export const InteriorDetails = (): JSX.Element => {
-    const { interior } = useInterior();
+type InteriorDetailsProps = {
+    interior: SerializedInterior | undefined;
+};
 
+export const InteriorDetails = ({ interior }: InteriorDetailsProps): JSX.Element | null => {
     if (!interior) {
         return null;
     }

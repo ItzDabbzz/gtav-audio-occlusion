@@ -5,32 +5,31 @@ import { isXMLFilePath, isMapDataFilePath, isMapTypesFilePath } from '@/electron
 import { useProject } from '../../context';
 
 import { FileImporter } from '../FileImporter';
+import { math } from 'polished';
 
 export const ProjectFileImporter = () => {
-    const { setCreateModalMapDataFile, setCreateModalMapTypesFile, setCreateModalOpen } = useProject();
+    const { addInterior, setCreateModalOpen } = useProject();
 
     const validateFile = (file: File): boolean => isXMLFilePath(file.path);
 
     const onFileImport = (files: File[]): void => {
-        let importedFile = false;
+        // Group files by #map/#typ pairs (simple version: assume user drops pairs)
+        const mapFiles = files.filter(f => isMapDataFilePath(f.path));
+        const typFiles = files.filter(f => isMapTypesFilePath(f.path));
 
-        files.forEach(file => {
-            if (isMapDataFilePath(file.path)) {
-                importedFile = true;
-
-                return setCreateModalMapDataFile(file.path);
-            }
-
-            if (isMapTypesFilePath(file.path)) {
-                importedFile = true;
-
-                return setCreateModalMapTypesFile(file.path);
+        // For each pair, add a new interior (prompt for name if needed)
+        mapFiles.forEach((mapFile, idx) => {
+            const typFile = typFiles[idx];
+            if (typFile) {
+                addInterior({
+                    identifier: crypto.randomUUID(),
+                    name: '', // You may want to prompt for this in the modal
+                    mapDataFilePath: mapFile.path,
+                    mapTypesFilePath: typFile.path,
+                });
             }
         });
-
-        if (importedFile) {
-            setCreateModalOpen(true);
-        }
+        setCreateModalOpen(true);
     };
 
     const onButtonClick = (): void => {
@@ -39,3 +38,4 @@ export const ProjectFileImporter = () => {
 
     return <FileImporter validateFile={validateFile} onFileImport={onFileImport} onButtonClick={onButtonClick} />;
 };
+

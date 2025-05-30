@@ -214,3 +214,54 @@ export const SLabel = styled.label`
     font-weight: 500;
     color: ${({ theme }) => theme.colors.text};
 `;
+
+export const InteriorBox = styled.div`
+    border: 1px solid ${({ theme }) => theme.colors.overlay0};
+    border-radius: 8px;
+    margin-bottom: 8px;
+    padding: 12px;
+    background: ${({ theme }) => theme.colors.surface1};
+`;
+
+export const RemoveButton = styled.button`
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 8px;
+    background: ${({ theme }) => theme.colors.red};
+    color: ${({ theme }) => theme.colors.text};
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    &:hover {
+        background: ${({ theme }) => theme.colors.redAlt || theme.colors.red};
+        opacity: 0.85;
+    }
+`;
+
+export const AddInteriorButton = styled.button`
+    margin-top: 8px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background: ${({ theme }) => theme.colors.pink};
+    color: ${({ theme }) => theme.colors.text};
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+    text-transform: uppercase;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    &:hover {
+        background: ${({ theme }) => theme.colors.red || theme.colors.pink};
+        opacity: 0.85;
+    }
+`;

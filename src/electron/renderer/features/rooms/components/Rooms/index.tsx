@@ -6,11 +6,13 @@ import { Interior } from '@/electron/renderer/features/interior';
 import { useProject, NoProject } from '@/electron/renderer/features/project';
 
 import { InteriorRoomAudioGameDataList } from '../InteriorRoomAudioGameDataList';
+import { useInterior } from '@/electron/renderer/features/interior';
 
 const HEADER_TITLE = 'Rooms';
 
 export const Rooms = (): JSX.Element => {
     const { state } = useProject();
+    const { interiors, fetchInterior } = useInterior();
 
     if (!state) {
         return <NoProject />;
@@ -22,12 +24,16 @@ export const Rooms = (): JSX.Element => {
         <Container>
             <Header title={HEADER_TITLE} optionalText={headerOptionalText} />
             <Content>
-                {state.interiors.map((interior, index) => {
-                    const { identifier } = interior;
+                {state.interiors.map((interiorMeta, index) => {
+                    const { identifier } = interiorMeta;
+                    if (!interiorMeta) return null;
 
                     return (
-                        <Interior key={identifier} index={index} name={identifier}>
-                            <InteriorRoomAudioGameDataList />
+                        <Interior key={identifier} identifier={identifier} index={index} name={identifier}>
+                            <InteriorRoomAudioGameDataList
+                                interior={interiorMeta}
+                                fetchInterior={() => fetchInterior(identifier)}
+                            />
                         </Interior>
                     );
                 })}

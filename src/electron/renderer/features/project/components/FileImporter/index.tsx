@@ -22,33 +22,26 @@ export const FileImporter: React.FC<FileImporterProps> = ({
 
     const dragEnter = (event: DragEvent): void => {
         event.preventDefault();
-
         setIsDraggingOver(value => value + 1);
     };
 
     const dragLeave = (event: DragEvent): void => {
         event.preventDefault();
-
         setIsDraggingOver(value => value - 1);
     };
 
     const dragDrop = (event: DragEvent): void => {
         event.preventDefault();
-
         const files = event.dataTransfer.files;
 
         if (files.length && onFileImport) {
             const fileList: File[] = [];
-
             for (let i = 0; i < files.length; i++) {
                 if (validateFile && !validateFile(files[i])) continue;
-
                 fileList.push(files[i]);
             }
-
             onFileImport(fileList);
         }
-
         setIsDraggingOver(0);
     };
 
@@ -64,7 +57,7 @@ export const FileImporter: React.FC<FileImporterProps> = ({
                 <FaFileImport size={60} />
             </Button>
             <CallToAction>Create new project</CallToAction>
-            <Description>or drag #map and #typ CodeWalker XML files</Description>
+            <Description>or drag multiple #map and #typ CodeWalker XML files</Description>
         </Container>
     );
 };

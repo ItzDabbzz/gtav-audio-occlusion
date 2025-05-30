@@ -437,100 +437,97 @@ export class CodeWalkerFormat {
         return filePath;
     }
 
-    public async writeDat15(targetPath: string, interiorName: string): Promise<string> {
-        const scene = `${interiorName}_scene`;
-        const patch = `${interiorName}_patch`;
-        const dat15Object: XML.AudioDynamixData = {
-            Dat15: {
-                Version: { $: { value: 9037528 } },
-                Items: {
-                    Item: [
-                        {
-                            $: { type: 'Scene', ntOffset: 0 },
-                            Name: scene,
-                            Flags: { $: { value: '0xAAAA0001' } },
-                            Unk01: '',
-                            Items: {
-                                Item: [{ Patch: patch, Group: '' }],
-                            },
-                        },
-                        {
-                            $: { type: 'Patch', ntOffset: 0 },
-                            Name: patch,
-                            Flags: { $: { value: '0xAAAA0001' } },
-                            FadeIn: { $: { value: 500 } },
-                            FadeOut: { $: { value: 500 } },
-                            PreDelay: { $: { value: 0 } },
-                            Duration: { $: { value: 0 } },
-                            ApplyFactorCurve: 'hash_0D0E6F19',
-                            ApplyVariable: 'hash_E865CDE8',
-                            ApplySmoothRate: { $: { value: 0 } },
-                            MixCategories: {
-                                Item: [
-                                    {
-                                        Category: 'vehicles_train',
-                                        Volume: { $: { value: -400 } },
-                                        VolumeInvert: { $: { value: 1 } },
-                                        LPFCutoff: { $: { value: 92 } },
-                                        HPFCutoff: { $: { value: 93 } },
-                                        Pitch: { $: { value: 250 } },
-                                        Frequency: { $: { value: 0 } },
-                                        PitchInvert: { $: { value: 0 } },
-                                        Rolloff: { $: { value: 1 } },
-                                        Unk10: { $: { value: 1 } },
-                                        Unk11: { $: { value: 1 } },
-                                    },
-                                    {
-                                        Category: 'vehicles_horns_loud',
-                                        Volume: { $: { value: -900 } },
-                                        VolumeInvert: { $: { value: 1 } },
-                                        LPFCutoff: { $: { value: 92 } },
-                                        HPFCutoff: { $: { value: 93 } },
-                                        Pitch: { $: { value: 0 } },
-                                        Frequency: { $: { value: 0 } },
-                                        PitchInvert: { $: { value: 0 } },
-                                        Rolloff: { $: { value: 1 } },
-                                        Unk10: { $: { value: 1 } },
-                                        Unk11: { $: { value: 0.5 } },
-                                    },
-                                    {
-                                        Category: 'ambience',
-                                        Volume: { $: { value: 600 } },
-                                        VolumeInvert: { $: { value: 1 } },
-                                        LPFCutoff: { $: { value: 92 } },
-                                        HPFCutoff: { $: { value: 93 } },
-                                        Pitch: { $: { value: 0 } },
-                                        Frequency: { $: { value: 0 } },
-                                        PitchInvert: { $: { value: 0 } },
-                                        Rolloff: { $: { value: 1 } },
-                                        Unk10: { $: { value: 1 } },
-                                        Unk11: { $: { value: 1 } },
-                                    },
-                                    {
-                                        Category: 'weather',
-                                        Volume: { $: { value: -10400 } },
-                                        VolumeInvert: { $: { value: 1 } },
-                                        LPFCutoff: { $: { value: 92 } },
-                                        HPFCutoff: { $: { value: 93 } },
-                                        Pitch: { $: { value: 250 } },
-                                        Frequency: { $: { value: 0 } },
-                                        PitchInvert: { $: { value: 0 } },
-                                        Rolloff: { $: { value: 1 } },
-                                        Unk10: { $: { value: 1 } },
-                                        Unk11: { $: { value: 1 } },
-                                    },
-                                ],
-                            },
-                        },
-                    ],
-                },
+public async writeDat15(targetPath: string, interiorNames: string[]): Promise<string> {
+    const items: any[] = [];
+
+    for (const name of interiorNames) {
+        const sceneName = `${name}_scene`;
+        const patchName = `${name}_patch`;
+
+        // Scene
+        items.push({
+            $: { type: 'Scene', ntOffset: 0 },
+            Name: sceneName,
+            Flags: { $: { value: '0xAAAA0001' } },
+            OnStopScene: '',
+            PatchGroups: '',
+        });
+
+        // Patch
+        items.push({
+            $: { type: 'Patch', ntOffset: 0 },
+            Name: patchName,
+            Flags: { $: { value: '0xAAAA0001' } },
+            FadeIn: { $: { value: 500 } },
+            FadeOut: { $: { value: 500 } },
+            PreDelay: { $: { value: 0 } },
+            Duration: { $: { value: 0 } },
+            ApplyFactorCurve: 'hash_0D0E6F19',
+            ApplyVariable: 'hash_E865CDE8',
+            ApplySmoothRate: { $: { value: 0 } },
+            MixCategories: {
+                Item: [
+                    {
+                        Category: 'vehicles_train',
+                        Volume: { $: { value: -400 } },
+                        VolumeInvert: { $: { value: 1 } },
+                        LPFCutoff: { $: { value: 92 } },
+                        HPFCutoff: { $: { value: 93 } },
+                        Pitch: { $: { value: 250 } },
+                        Frequency: { $: { value: 0 } },
+                        PitchInvert: { $: { value: 0 } },
+                        Rolloff: { $: { value: 1 } },
+                    },
+                    {
+                        Category: 'vehicles_horns_loud',
+                        Volume: { $: { value: -900 } },
+                        VolumeInvert: { $: { value: 1 } },
+                        LPFCutoff: { $: { value: 92 } },
+                        HPFCutoff: { $: { value: 93 } },
+                        Pitch: { $: { value: 0 } },
+                        Frequency: { $: { value: 0 } },
+                        PitchInvert: { $: { value: 0 } },
+                        Rolloff: { $: { value: 1 } },
+                    },
+                    {
+                        Category: 'ambience',
+                        Volume: { $: { value: 600 } },
+                        VolumeInvert: { $: { value: 1 } },
+                        LPFCutoff: { $: { value: 92 } },
+                        HPFCutoff: { $: { value: 93 } },
+                        Pitch: { $: { value: 0 } },
+                        Frequency: { $: { value: 0 } },
+                        PitchInvert: { $: { value: 0 } },
+                        Rolloff: { $: { value: 1 } },
+                    },
+                    {
+                        Category: 'weather',
+                        Volume: { $: { value: -10400 } },
+                        VolumeInvert: { $: { value: 1 } },
+                        LPFCutoff: { $: { value: 92 } },
+                        HPFCutoff: { $: { value: 93 } },
+                        Pitch: { $: { value: 250 } },
+                        Frequency: { $: { value: 0 } },
+                        PitchInvert: { $: { value: 0 } },
+                        Rolloff: { $: { value: 1 } },
+                    },
+                ],
             },
-        };
-
-        const filePath = path.resolve(targetPath, 'mix.dat15.rel.xml');
-
-        await this.writeFile(filePath, dat15Object);
-
-        return filePath;
+        });
     }
+
+    const dat15Object: any = {
+        Dat15: {
+            Version: { $: { value: 9037528 } },
+            Items: {
+                Item: items,
+            },
+        },
+    };
+
+    const filePath = path.resolve(targetPath, 'mix.dat15.rel.xml');
+    await this.writeFile(filePath, dat15Object);
+    return filePath;
+}
+
 }

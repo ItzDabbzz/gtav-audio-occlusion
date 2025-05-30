@@ -10,12 +10,14 @@ export enum ProjectAPI {
     WRITE_GENERATED_FILES = 'project/writeGeneratedFiles',
     SAVE_PROJECT = 'project/save',
     LOAD_PROJECT = 'LOAD_PROJECT',
+    ADD_INTERIOR = 'project/addInterior',
+    REMOVE_INTERIOR = 'project/removeInterior',
 }
 
 export type CreateProjectDTO = {
     name: string;
     path: string;
-    interior: CreateInteriorDTO;
+    interiors: CreateInteriorDTO[];
 };
 
 export type SerializedProject = {

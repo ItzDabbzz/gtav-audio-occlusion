@@ -3,12 +3,18 @@ import React from 'react';
 import { TableContainer, Table } from '@/electron/renderer/components/Table';
 import { Checkbox } from '@/electron/renderer/components/Checkbox';
 
-import { useInterior } from '@/electron/renderer/features/interior';
 import { updatePortalInfo } from '@/electron/renderer/features/portals';
+import { SerializedInterior } from '@/electron/common/types/interior';
 
-export const PortalInfoList = (): JSX.Element => {
-    const { interior, fetchInterior } = useInterior();
+type PortalInfoListProps = {
+    interior: SerializedInterior;
+    fetchInterior: () => Promise<void>;
+};
 
+export const PortalInfoList = ({
+    interior,
+    fetchInterior,
+}: PortalInfoListProps): JSX.Element | null => {
     if (!interior) {
         return null;
     }
