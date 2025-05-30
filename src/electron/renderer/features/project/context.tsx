@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { isErr, unwrapResult } from '@/electron/common';
 import { ProjectAPI, SerializedProject, CreateProjectDTO } from '@/electron/common/types/project';
-import type { CreateProjectModalState } from './types';
+import type { CreateProjectModalState, CreateProjectModalInterior } from './types';
 import { InteriorAPI } from '@/electron/common/types/interior';
 
 const { API } = window;
@@ -10,11 +10,11 @@ export interface IProjectContext {
     state?: SerializedProject;
     createModalState: CreateProjectModalState;
     setCreateModalOpen: (open: boolean) => void;
-    setCreateModalName: (name: string) => void;
-    setCreateModalPath: (path: string) => void;
-    setCreateModalInterior: (interior: string) => void;
-    setCreateModalMapDataFile: (mapDataFile: string) => void;
-    setCreateModalMapTypesFile: (mapTypesFile: string) => void;
+    setProjectName: (name: string) => void;
+    setProjectPath: (path: string) => void;
+    updateInterior: (index: number, patch: Partial<CreateProjectModalInterior>) => void;
+    addInterior: (patch: Partial<CreateProjectModalInterior>) => void;
+    removeInterior: (index: number) => void;
     fetchProject: () => Promise<void>;
     createProject: () => Promise<void>;
     openProject: () => Promise<void>;
@@ -32,9 +32,7 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
         open: false,
         name: '',
         path: '',
-        interior: '',
-        mapDataFilePath: '',
-        mapTypesFilePath: '',
+        interiors: [],
     });
 
     const loadInterior = useCallback(async (identifier: string) => {
@@ -64,11 +62,7 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
         const dto: CreateProjectDTO = {
             name: createModalState.name,
             path: createModalState.path,
-            interior: {
-                name: createModalState.interior,
-                mapDataFilePath: createModalState.mapDataFilePath,
-                mapTypesFilePath: createModalState.mapTypesFilePath,
-            },
+            interiors: createModalState.interiors,
         };
         const result = await API.invoke(ProjectAPI.CREATE_PROJECT, dto);
         if (isErr(result)) {
@@ -76,8 +70,9 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
             return;
         }
         await fetchProject();
-        setCreateModalState(s => ({ ...s, open: false }));
+        setCreateModalState(s => ({ ...s, open: false, interiors: [] }));
     }, [createModalState, fetchProject]);
+
 
     const openProject = useCallback(async () => {
         const dirResult = await API.invoke(ProjectAPI.SELECT_PROJECT_PATH);
@@ -121,15 +116,25 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
         const result = await API.invoke(ProjectAPI.WRITE_GENERATED_FILES);
         if (isErr(result)) console.warn(unwrapResult(result));
     }, []);
-
     const setCreateModalOpen = (open: boolean) => setCreateModalState(s => ({ ...s, open }));
-    const setCreateModalName = (name: string) => setCreateModalState(s => ({ ...s, name }));
-    const setCreateModalPath = (path: string) => setCreateModalState(s => ({ ...s, path }));
-    const setCreateModalInterior = (interior: string) => setCreateModalState(s => ({ ...s, interior }));
-    const setCreateModalMapDataFile = (mapDataFile: string) =>
-        setCreateModalState(s => ({ ...s, mapDataFilePath: mapDataFile }));
-    const setCreateModalMapTypesFile = (mapTypesFile: string) =>
-        setCreateModalState(s => ({ ...s, mapTypesFilePath: mapTypesFile }));
+    const setProjectName = (name: string) => setCreateModalState(s => ({ ...s, name }));
+    const setProjectPath = (path: string) => setCreateModalState(s => ({ ...s, path }));
+
+    const addInterior = useCallback(async (interior: CreateProjectModalInterior) => {
+        await API.invoke('project/addInterior', interior);
+        await fetchProject();
+    }, [fetchProject]);
+
+    const updateInterior = (index: number, patch: Partial<CreateProjectModalInterior>) =>
+        setCreateModalState(s => ({
+            ...s,
+            interiors: s.interiors.map((int, i) => i === index ? { ...int, ...patch } : int),
+        }));
+
+    const removeInterior = useCallback(async (identifier: string) => {
+        await API.invoke('project/removeInterior', identifier);
+        await fetchProject();
+    }, [fetchProject]);
 
     return (
         <projectContext.Provider
@@ -137,11 +142,11 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
                 state,
                 createModalState,
                 setCreateModalOpen,
-                setCreateModalName,
-                setCreateModalPath,
-                setCreateModalInterior,
-                setCreateModalMapDataFile,
-                setCreateModalMapTypesFile,
+                setProjectName,
+                setProjectPath,
+                addInterior,
+                updateInterior,
+                removeInterior,
                 fetchProject,
                 createProject,
                 openProject,
@@ -155,7 +160,6 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
         </projectContext.Provider>
     );
 };
-
 export const useProject = () => {
     const ctx = useContext(projectContext);
     if (!ctx) {

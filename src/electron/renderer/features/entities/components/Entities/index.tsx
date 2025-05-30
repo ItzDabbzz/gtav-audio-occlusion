@@ -6,11 +6,13 @@ import { Interior } from '@/electron/renderer/features/interior';
 import { useProject, NoProject } from '@/electron/renderer/features/project';
 
 import { PortalInfoEntityList } from '../PortalInfoEntityList';
+import { useInterior } from '@/electron/renderer/features/interior';
 
 const HEADER_TITLE = 'Entities';
 
 export const Entities = (): JSX.Element => {
     const { state } = useProject();
+    const { interiors, fetchInterior } = useInterior();
 
     if (!state) {
         return <NoProject />;
@@ -22,12 +24,17 @@ export const Entities = (): JSX.Element => {
         <Container>
             <Header title={HEADER_TITLE} optionalText={headerOptionalText} />
             <Content>
-                {state.interiors.map((interior, index) => {
-                    const { identifier } = interior;
+                {state.interiors.map((interiorMeta, index) => {
+                    const { identifier } = interiorMeta;
+                    
+                    if (!interiorMeta) return null;
 
                     return (
-                        <Interior key={identifier} index={index} name={identifier}>
-                            <PortalInfoEntityList />
+                        <Interior key={identifier} identifier={identifier} index={index} name={identifier}>
+                            <PortalInfoEntityList
+                                interior={interiorMeta}
+                                fetchInterior={() => fetchInterior(identifier)}
+                            />
                         </Interior>
                     );
                 })}

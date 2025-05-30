@@ -6,17 +6,41 @@ import { Interior, InteriorDetails } from '@/electron/renderer/features/interior
 import { useProject } from '../../context';
 import { CreateModal } from '../CreateModal';
 import { ProjectFileImporter } from '../ProjectFileImporter';
+import { AddInteriorModal } from '../AddInteriorModal';
+import { useState } from 'react';
+import { ProjectHistoryContainer, ProjectHistoryTitle, ProjectHistoryList, ProjectHistoryItem, ProjectHistoryPath, ProjectHistoryButton, ProjectHistoryName, ProjectHistoryRemoveButton, AddInteriorButton, RemoveInteriorButton } from './styles';
+import { useSettings } from '../../../settings/context';
 
 export const Project = (): JSX.Element => {
-    const { state, fetchProject, saveProject, reloadProject, writeGeneratedFiles, closeProject, setCreateModalOpen } =
-        useProject();
+    const {
+        state,
+        fetchProject,
+        saveProject,
+        reloadProject,
+        writeGeneratedFiles,
+        closeProject,
+        setCreateModalOpen,
+        addInterior,
+        removeInterior,
+    } = useProject();
+    const { projectHistory, removeProjectFromHistory } = useSettings();
+    const [addInteriorOpen, setAddInteriorOpen] = useState(false);
+    const handleRemoveHistory = async (path: string) => {
+        await removeProjectFromHistory(path);
+    };
+    const handleOpenHistoryProject = async (projectPath: string) => {
+        await window.API.invoke('LOAD_PROJECT', projectPath);
+        await fetchProject();
+    };
+    const handleRemove = (identifier: string) => {
+        removeInterior(identifier);
+        fetchProject(); // Refresh project state after removal
+    };
 
-    // Reload the in-memory state on mount
     useEffect(() => {
         fetchProject();
     }, [fetchProject]);
 
-    // Build two different button sets: one for "no project" and one for "project open"
     const headerOptions = useMemo(() => {
         if (!state) {
             return [
@@ -42,8 +66,6 @@ export const Project = (): JSX.Element => {
 
     return (
         <>
-            {/** This Header is always rendered **/}
-
             <Container>
                 <Header
                     title={state ? `"${state.name}"` : 'gtav-audio-occlusion'}
@@ -54,11 +76,41 @@ export const Project = (): JSX.Element => {
                     }
                     options={headerOptions}
                 />
+                {!state && projectHistory.length > 0 && (
+                    <ProjectHistoryContainer>
+                        <ProjectHistoryTitle>Recent Projects</ProjectHistoryTitle>
+                        <ProjectHistoryList>
+                            {projectHistory.map(({ name, path }) => (
+                                <ProjectHistoryItem key={path} title={name}>
+                                    <ProjectHistoryName title={name}>{name}</ProjectHistoryName>
+                                    <ProjectHistoryPath title={path}>{path}</ProjectHistoryPath>
+                                    <ProjectHistoryButton onClick={() => handleOpenHistoryProject(path)}>
+                                        Open
+                                    </ProjectHistoryButton>
+                                    <ProjectHistoryRemoveButton
+                                        title="Remove from history"
+                                        onClick={() => handleRemoveHistory(path)}
+                                    >
+                                        <FaTimes />
+                                    </ProjectHistoryRemoveButton>
+                                </ProjectHistoryItem>
+                            ))}
+                        </ProjectHistoryList>
+                    </ProjectHistoryContainer>
+                )}
                 {state ? (
                     <Content>
+                        <AddInteriorButton onClick={() => setAddInteriorOpen(true)}>
+                            + Add Interior
+                        </AddInteriorButton>
                         {state.interiors.map((interior, index) => (
-                            <Interior key={interior.identifier} index={index} name={interior.identifier}>
-                                <InteriorDetails />
+                            <Interior key={interior.identifier} index={index} name={interior.identifier} identifier={interior.identifier}>
+                                <InteriorDetails interior={interior} />
+                                <RemoveInteriorButton
+                                    onClick={() => handleRemove(interior.identifier)}
+                                >
+                                    Remove Interior
+                                </RemoveInteriorButton>
                             </Interior>
                         ))}
                     </Content>
@@ -66,7 +118,7 @@ export const Project = (): JSX.Element => {
                     <ProjectFileImporter />
                 )}
             </Container>
-
+            <AddInteriorModal open={addInteriorOpen} onClose={() => setAddInteriorOpen(false)} />
             <CreateModal />
         </>
     );

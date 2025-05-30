@@ -8,15 +8,15 @@ type TableProps = {
 export const TableContainer = styled.div`
     display: flex;
     flex-direction: column;
-
     overflow-x: auto;
-
     border-radius: 8px;
 `;
 
-export const Table = styled.table<TableProps>`
+// Only filter out alternatedRowColors
+export const Table = styled.table.withConfig({
+    shouldForwardProp: (prop) => prop !== 'alternatedRowColors',
+})<TableProps>`
     width: 100%;
-
     border-collapse: collapse;
 
     tr > * {
@@ -25,16 +25,12 @@ export const Table = styled.table<TableProps>`
 
     th {
         height: 32px;
-
         border: none;
         margin: none;
-
         font-size: 0.8em;
         font-weight: 500;
-
         background: ${({ theme }) => theme.colors.surface0};
         color: ${({ theme }) => theme.colors.text};
-
         text-align: start;
 
         &:nth-child(1) {
@@ -48,11 +44,9 @@ export const Table = styled.table<TableProps>`
 
     td {
         height: 40px;
-
         font-size: 0.8em;
         font-weight: 400;
         color: ${({ theme }) => theme.colors.text};
-
         background: ${({ theme }) => theme.colors.overlay0};
     }
 
@@ -62,7 +56,6 @@ export const Table = styled.table<TableProps>`
                 &:nth-child(1) {
                     border-radius: 0 0 0 8px;
                 }
-
                 &:nth-last-child(1) {
                     border-radius: 0 0 8px 0;
                 }

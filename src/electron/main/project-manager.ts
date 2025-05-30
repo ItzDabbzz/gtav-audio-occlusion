@@ -41,6 +41,8 @@ export class ProjectManager {
         ipcMain.handle(ProjectAPI.WRITE_GENERATED_FILES, this.writeGeneratedFiles.bind(this));
         ipcMain.handle(ProjectAPI.SAVE_PROJECT, this.saveProject.bind(this));
         ipcMain.handle(ProjectAPI.LOAD_PROJECT, this.loadProject.bind(this));
+        ipcMain.handle(ProjectAPI.ADD_INTERIOR, this.addInteriorToCurrentProject.bind(this));
+        ipcMain.handle(ProjectAPI.REMOVE_INTERIOR, this.removeInteriorFromCurrentProject.bind(this));
     }
 
     public getCurrentProject(): Result<string, Project> {
@@ -66,6 +68,7 @@ export class ProjectManager {
             return err('FAILED_SAVING_PROJECT');
         }
 
+        this.application.settings.addProjectToHistory({ name: data.name, path: data.path });
         return ok(true);
     }
 
@@ -105,6 +108,7 @@ export class ProjectManager {
                     return result as Err<string>;
                 }
             }
+            this.application.settings.addProjectToHistory({ name: data.name, path: projectDir });
             // return the serialized form back to renderer
             return ok(this.currentProject.serialize());
         } catch (e) {
@@ -146,6 +150,33 @@ export class ProjectManager {
 
         return ok(mapTypesFilePath);
     }
+
+    public async removeInteriorFromCurrentProject(_: Event, identifier: string): Promise<Result<string, boolean>> {
+        if (!this.currentProject) {
+            return err('NO_PROJECT_OPENED');
+        }
+        // Remove from the project's interiors array
+        this.currentProject.interiors = this.currentProject.interiors.filter(
+            int => int.identifier !== identifier
+        );
+        await this.saveProject();
+        return ok(true);
+    }
+
+public async addInteriorToCurrentProject(_: Event, interiorData: CreateInteriorDTO): Promise<Result<string, boolean>> {
+    if (!this.currentProject) {
+        return err('NO_PROJECT_OPENED');
+    }
+    // Validate input
+    if (!interiorData.name || !interiorData.mapDataFilePath || !interiorData.mapTypesFilePath) {
+        return err('MISSING_INTERIOR_FIELDS');
+    }
+    const result = await this.addInteriorToProject(this.currentProject, interiorData);
+    if (isErr(result)) return result;
+    await this.saveProject();
+    return ok(true);
+}
+
 
     public async addInteriorToProject(
         project: Project,
@@ -192,17 +223,22 @@ export class ProjectManager {
         return ok(true);
     }
 
-    public async createProject(_: Event, { name, path, interior }: CreateProjectDTO): Promise<Result<string, boolean>> {
+    public async createProject(
+        _: Event,
+        { name, path, interiors }: CreateProjectDTO
+    ): Promise<Result<string, boolean>> {
         this.currentProject = new Project({ name, path });
 
-        const result = await this.addInteriorToProject(this.currentProject, interior);
-
-        if (isErr(result)) {
-            return result;
+        for (const interior of interiors) {
+            const result = await this.addInteriorToProject(this.currentProject, interior);
+            if (isErr(result)) {
+                return result;
+            }
         }
-
+        this.application.settings.addProjectToHistory({ name, path }); 
         return ok(true);
     }
+
 
     public closeProject(): Result<string, boolean> {
         this.currentProject = null;
@@ -251,23 +287,27 @@ export class ProjectManager {
 
         const project = unwrapResult(projectResult);
 
+        // Combine all audio game data from all interiors
         const audioGameData = project.interiors.flatMap(interior => interior.getAudioGameData());
 
         let filePath: string;
 
         try {
+            // Write a single dat151 file for the whole project
             filePath = await this.application.codeWalkerFormat.writeDat151(project.path, audioGameData);
-        } catch {
+        } catch (e) {
+            console.error('Failed to write dat151:', e);
             return err('FAILED_TO_WRITE_DAT_151_FILE');
         }
 
-        // biome-ignore lint/complexity/noForEach: <explanation>
+        // Update all interiors with the path to the dat151 file
         project.interiors.forEach(interior => {
             interior.audioGameDataPath = filePath;
         });
 
         return ok(filePath);
     }
+
     public async writeDat15(): Promise<Result<string, string>> {
         const projectResult = this.application.projectManager.getCurrentProject();
 
@@ -276,13 +316,11 @@ export class ProjectManager {
         }
 
         const project = unwrapResult(projectResult);
-
-        const audioGameData = project.interiors.map(interior => interior.getInteriorName()).join('\n');
-
         let filePath: string;
 
         try {
-            filePath = await this.application.codeWalkerFormat.writeDat15(project.path, audioGameData);
+            const interiorNames = project.interiors.map(interior => interior.getInteriorName());
+            filePath = await this.application.codeWalkerFormat.writeDat15(project.path, interiorNames);
         } catch {
             return err('FAILED_TO_WRITE_DAT_15_FILE');
         }
@@ -295,6 +333,7 @@ export class ProjectManager {
         return ok(filePath);
     }
     public async writeGeneratedFiles(): Promise<Result<string, boolean>> {
+
         const [interiorsMetadataResult, dat151Result, dat15Result] = await Promise.all([
             this.writeInteriorsOcclusionMetadata(),
             this.writeDat151(),

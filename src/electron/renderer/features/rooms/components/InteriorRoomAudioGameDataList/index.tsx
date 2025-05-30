@@ -4,17 +4,22 @@ import { SerializedInteriorRoomAudioGameData } from '@/electron/common/types/aud
 
 import { TableContainer, Table } from '@/electron/renderer/components/Table';
 
-import { useInterior } from '@/electron/renderer/features/interior';
-
 import { parseHexToString } from '@/electron/renderer/utils';
 
 import { updateInteriorRoomAudioGameData } from '../../index';
 
 import { InputWrapper, MediumInput, SmallInput, ScrollContainer } from './styles';
+import { SerializedInterior } from '@/electron/common/types/interior';
 
-export const InteriorRoomAudioGameDataList = (): JSX.Element => {
-    const { interior, fetchInterior } = useInterior();
+type InteriorRoomAudioGameDataListProps = {
+    interior: SerializedInterior;
+    fetchInterior: () => Promise<void>;
+};
 
+export const InteriorRoomAudioGameDataList = ({
+    interior,
+    fetchInterior,
+}: InteriorRoomAudioGameDataListProps): JSX.Element | null => {
     if (!interior || !interior.interiorRoomAudioGameDataList) {
         return null;
     }
@@ -26,14 +31,11 @@ export const InteriorRoomAudioGameDataList = (): JSX.Element => {
         for (const key in data) {
             if (Object.prototype.hasOwnProperty.call(data, key)) {
                 const value = data[key];
-
-                // isNaN returns false if it receive a string
                 if (typeof value !== 'string' && isNaN(value)) return;
             }
         }
 
         await updateInteriorRoomAudioGameData(identifier, roomIndex, data);
-
         await fetchInterior();
     };
 

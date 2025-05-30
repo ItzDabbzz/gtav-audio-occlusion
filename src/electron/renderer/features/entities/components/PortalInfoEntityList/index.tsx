@@ -3,18 +3,24 @@ import React from 'react';
 import { TableContainer, Table } from '@/electron/renderer/components/Table';
 import { Checkbox } from '@/electron/renderer/components/Checkbox';
 
-import { useInterior } from '@/electron/renderer/features/interior';
 import { updatePortalEntity } from '@/electron/renderer/features/entities';
 
 import { SmallInput } from './styles';
+import { SerializedInterior } from '@/electron/common/types/interior';
 
 const MAX_OCCLUSION_MIN = 0;
 const MAX_OCCLUSION_MAX = 1;
 const MAX_OCCLUSION_STEP = 0.1;
 
-export const PortalInfoEntityList = (): JSX.Element => {
-    const { interior, fetchInterior } = useInterior();
+type PortalInfoEntityListProps = {
+    interior: SerializedInterior;
+    fetchInterior: () => Promise<void>;
+};
 
+export const PortalInfoEntityList = ({
+    interior,
+    fetchInterior,
+}: PortalInfoEntityListProps): JSX.Element | null => {
     if (!interior) {
         return null;
     }
@@ -87,20 +93,16 @@ export const PortalInfoEntityList = (): JSX.Element => {
                                 />
                             </td>
                             <td>
-                                {
-                                    <Checkbox
-                                        checked={isDoor}
-                                        onClick={() => updateIsDoor(portalInfo.infoIndex, portalEntityIndex, !isDoor)}
-                                    />
-                                }
+                                <Checkbox
+                                    checked={isDoor}
+                                    onClick={() => updateIsDoor(portalInfo.infoIndex, portalEntityIndex, !isDoor)}
+                                />
                             </td>
                             <td>
-                                {
-                                    <Checkbox
-                                        checked={isGlass}
-                                        onClick={() => updateIsGlass(portalInfo.infoIndex, portalEntityIndex, !isGlass)}
-                                    />
-                                }
+                                <Checkbox
+                                    checked={isGlass}
+                                    onClick={() => updateIsGlass(portalInfo.infoIndex, portalEntityIndex, !isGlass)}
+                                />
                             </td>
                         </tr>,
                     );

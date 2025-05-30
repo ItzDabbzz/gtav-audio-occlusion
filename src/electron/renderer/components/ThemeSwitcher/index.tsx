@@ -28,8 +28,8 @@ export const ThemeSwitcher = ({ expanded }: { expanded: boolean }): JSX.Element 
     };
 
     return (
-        <Wrapper expanded={expanded}>
-            <Trigger expanded={expanded}>
+        <Wrapper $expanded={expanded}>
+            <Trigger $expanded={expanded}>
                 <span>{theme.name}</span>
                 <ChevronDown />
             </Trigger>

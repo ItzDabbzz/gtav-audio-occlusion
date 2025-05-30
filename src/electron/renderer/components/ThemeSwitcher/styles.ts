@@ -1,23 +1,23 @@
 import styled from 'styled-components';
 
-export const Wrapper = styled.div<{ expanded: boolean }>`
+export const Wrapper = styled.div<{ $expanded: boolean }>`
     position: relative;
     display: inline-block;
     font-size: 0.9em;
-    width: ${({ expanded }) => (expanded ? 'auto' : '32px')};
+    width: ${({ $expanded }) => ($expanded ? 'auto' : '32px')};
     height: 32px;
 `;
 
-export const Trigger = styled.button<{ expanded: boolean }>`
+export const Trigger = styled.button<{ $expanded: boolean }>`
     all: unset;
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    justify-content: ${({ expanded }) => (expanded ? 'space-between' : 'center')};
+    justify-content: ${({ $expanded }) => ($expanded ? 'space-between' : 'center')};
 
-    width: ${({ expanded }) => (expanded ? '170px' : '32px')};
+    width: ${({ $expanded }) => ($expanded ? '170px' : '32px')};
     height: 32px;
-    padding: ${({ expanded }) => (expanded ? '0 12px' : '0')};
+    padding: ${({ $expanded }) => ($expanded ? '0 12px' : '0')};
 
     background: ${({ theme }) => theme.colors.surface0};
     border: 1px solid ${({ theme }) => theme.colors.overlay1};
@@ -25,7 +25,7 @@ export const Trigger = styled.button<{ expanded: boolean }>`
     cursor: pointer;
 
     > span {
-        display: ${({ expanded }) => (expanded ? 'inline' : 'none')};
+        display: ${({ $expanded }) => ($expanded ? 'inline' : 'none')};
         color: ${({ theme }) => theme.colors.text};
     }
 
