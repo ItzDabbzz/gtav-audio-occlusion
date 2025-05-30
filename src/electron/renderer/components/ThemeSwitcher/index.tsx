@@ -3,6 +3,7 @@ import { useAppTheme } from '../../styles/ThemeProvider';
 import { themes } from '../../styles/themes';
 
 import { Wrapper, Trigger, Select, Option } from './styles';
+import { useSettings } from '../../features/settings/context';
 export const ChevronDown = () => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -18,6 +19,13 @@ export const ChevronDown = () => (
 );
 export const ThemeSwitcher = ({ expanded }: { expanded: boolean }): JSX.Element => {
     const { themeKey, setThemeKey, theme } = useAppTheme();
+    const { updateSettings } = useSettings();
+
+    const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const key = e.target.value as keyof typeof themes;
+        setThemeKey(key);
+        updateSettings({ savedTheme: key });
+    };
 
     return (
         <Wrapper expanded={expanded}>
@@ -25,7 +33,7 @@ export const ThemeSwitcher = ({ expanded }: { expanded: boolean }): JSX.Element 
                 <span>{theme.name}</span>
                 <ChevronDown />
             </Trigger>
-            <Select value={themeKey} onChange={e => setThemeKey(e.target.value as keyof typeof themes)}>
+            <Select value={themeKey} onChange={onChange}>
                 {Object.entries(themes).map(([key, t]) => (
                     <Option key={key} value={key}>
                         {t.name}

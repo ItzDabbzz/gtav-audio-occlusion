@@ -1,11 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { AppThemeProvider } from './styles/ThemeProvider';
+import { ThemeProvider } from './styles/ThemeProvider';
 import { App } from './App';
+import { SettingsProvider } from './features/settings/context';
 
 ReactDOM.render(
-    <AppThemeProvider>
-        <App />
-    </AppThemeProvider>,
+    <SettingsProvider>
+        <ThemeProvider>
+            <App />
+        </ThemeProvider>
+    </SettingsProvider>,
     document.getElementById('root'),
 );

@@ -4,7 +4,7 @@ import { Container, Header, Content } from '@/electron/renderer/components/Page'
 
 import { useSettings } from '../../context';
 
-import { SettingsEntry, SettingsCheckbox } from './styles';
+import { SettingsEntry, SettingsCheckbox, SettingsTextInput, SettingsLabel } from './styles';
 
 const HEADER_TITLE = 'Settings';
 
@@ -15,7 +15,7 @@ export const Settings = (): JSX.Element => {
         return null;
     }
 
-    const { bulkEditPortalEntities, writeDebugInfoToXML } = settings;
+    const { bulkEditPortalEntities, writeDebugInfoToXML, savedTheme } = settings;
 
     return (
         <Container>
@@ -26,14 +26,21 @@ export const Settings = (): JSX.Element => {
                         checked={bulkEditPortalEntities}
                         onClick={() => updateSettings({ bulkEditPortalEntities: !bulkEditPortalEntities })}
                     />
-                    <label>Bulk edit portal entities</label>
+                    <SettingsLabel>Bulk edit portal entities</SettingsLabel>
                 </SettingsEntry>
                 <SettingsEntry>
                     <SettingsCheckbox
                         checked={writeDebugInfoToXML}
                         onClick={() => updateSettings({ writeDebugInfoToXML: !writeDebugInfoToXML })}
                     />
-                    <label>Write debug information to the generated XML</label>
+                    <SettingsLabel>Write debug information to the generated XML</SettingsLabel>
+                </SettingsEntry>
+                <SettingsEntry>
+                    <SettingsLabel>Saved Theme</SettingsLabel>
+                    <SettingsTextInput
+                        value={savedTheme}
+                        onChange={e => updateSettings({ savedTheme: e.target.value })}
+                    ></SettingsTextInput>
                 </SettingsEntry>
             </Content>
         </Container>

@@ -10,15 +10,21 @@ const hasStrangeProperty = <T>(object: T, properties: (keyof T)[]): boolean => {
     return keys.some(key => !properties.includes(key as keyof T));
 };
 
-const ALLOWED_SETTINGS: Array<keyof SerializedSettings> = ['bulkEditPortalEntities', 'writeDebugInfoToXML'];
+const ALLOWED_SETTINGS: Array<keyof SerializedSettings> = [
+    'bulkEditPortalEntities',
+    'writeDebugInfoToXML',
+    'savedTheme',
+];
 
 export class Settings {
     public bulkEditPortalEntities: boolean;
     public writeDebugInfoToXML: boolean;
+    public savedTheme: string;
 
     constructor() {
         this.bulkEditPortalEntities = false;
         this.writeDebugInfoToXML = false;
+        this.savedTheme = 'tailwind';
 
         ipcMain.handle(SettingsAPI.GET, this.serialize.bind(this));
         ipcMain.on(SettingsAPI.SET, (event: Event, data: Partial<SerializedSettings>) => this.update(data));
@@ -33,11 +39,12 @@ export class Settings {
     }
 
     public serialize(): Result<string, SerializedSettings> {
-        const { bulkEditPortalEntities, writeDebugInfoToXML } = this;
+        const { bulkEditPortalEntities, writeDebugInfoToXML, savedTheme } = this;
 
         return ok({
             bulkEditPortalEntities,
             writeDebugInfoToXML,
+            savedTheme,
         });
     }
 }

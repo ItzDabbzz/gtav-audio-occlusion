@@ -6,4 +6,5 @@ export enum SettingsAPI {
 export type SerializedSettings = {
     bulkEditPortalEntities: boolean;
     writeDebugInfoToXML: boolean;
+    savedTheme: string;
 };
