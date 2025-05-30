@@ -59,7 +59,7 @@ export const GlobalStyle = createGlobalStyle`
 
   body {
     font-size: 16px;
-    color: #FFF;
+    color: ${({ theme }) => theme.colors.text};;
   }
 
   button {
@@ -76,9 +76,9 @@ export const GlobalStyle = createGlobalStyle`
     height: 2px;
     width: 2px;
 
-    background-color: ${({ theme }) => theme.colors.gray};
+    background-color: ${({ theme }) => theme.colors.surface0};
   }
   ::-webkit-scrollbar-thumb {
-    background-color: ${({ theme }) => theme.colors.rose};
+    background-color: ${({ theme }) => theme.colors.pink};
   }
 `;

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import merge from 'lodash/merge';
 
-interface CatppuccinPalette {
+export interface CatppuccinPalette {
     rosewater: string;
     flamingo: string;
     pink: string;

@@ -12,21 +12,24 @@ interface ThemeCtx {
 const ThemeContext = createContext<ThemeCtx>({} as any);
 
 export const ThemeProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
-    const { settings } = useSettings();
+    const { settings, updateSettings } = useSettings();
     const defaultKey = (settings?.savedTheme as ThemeKey) ?? ('tailwind' as ThemeKey);
 
     const [themeKey, setThemeKey] = useState<ThemeKey>(defaultKey);
     const theme = themes[themeKey];
 
-    // sync whenever settings.savedTheme changes
     useEffect(() => {
-        if (settings?.savedTheme) {
-            setThemeKey(settings.savedTheme as ThemeKey);
-        }
+        if (settings?.savedTheme) setThemeKey(settings.savedTheme as ThemeKey);
     }, [settings?.savedTheme]);
 
+    // Persist theme changes
+    const handleSetThemeKey = (k: ThemeKey) => {
+        setThemeKey(k);
+        updateSettings({ savedTheme: k });
+    };
+
     return (
-        <ThemeContext.Provider value={{ themeKey, setThemeKey, theme }}>
+        <ThemeContext.Provider value={{ themeKey, setThemeKey: handleSetThemeKey, theme }}>
             <SCThemeProvider theme={theme}>{children}</SCThemeProvider>
         </ThemeContext.Provider>
     );
