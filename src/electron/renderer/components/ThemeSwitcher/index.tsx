@@ -1,9 +1,10 @@
-import React from 'react';
 import { useAppTheme } from '../../styles/ThemeProvider';
 import { themes } from '../../styles/themes';
-
-import { Wrapper, Trigger, Select, Option } from './styles';
+import { useState, useRef, useEffect } from 'react';
+import React from 'react';
+import { Wrapper, Trigger, Dropdown, DropdownItem } from './styles';
 import { useSettings } from '../../features/settings/context';
+
 export const ChevronDown = () => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -17,29 +18,58 @@ export const ChevronDown = () => (
         <polyline points="6 9 12 15 18 9" />
     </svg>
 );
+
+export const ChevronUp = () => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <polyline points="6 15 12 9 18 15" />
+    </svg>
+);
+
 export const ThemeSwitcher = ({ expanded }: { expanded: boolean }): JSX.Element => {
     const { themeKey, setThemeKey, theme } = useAppTheme();
     const { updateSettings } = useSettings();
 
-    const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const key = e.target.value as keyof typeof themes;
-        setThemeKey(key);
+    const [open, setOpen] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+
+    // 🔒 Close on outside click
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (ref.current && !ref.current.contains(e.target as Node)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleSelect = (key: string) => {
+        setThemeKey(key as keyof typeof themes);
         updateSettings({ savedTheme: key });
+        setOpen(false);
     };
 
     return (
-        <Wrapper $expanded={expanded}>
-            <Trigger $expanded={expanded}>
+        <Wrapper $expanded={expanded} ref={ref}>
+            <Trigger $expanded={expanded} onClick={() => setOpen(prev => !prev)}>
                 <span>{theme.name}</span>
-                <ChevronDown />
+                {open ? <ChevronUp /> : <ChevronDown />}
             </Trigger>
-            <Select value={themeKey} onChange={onChange}>
+            <Dropdown $open={open}>
                 {Object.entries(themes).map(([key, t]) => (
-                    <Option key={key} value={key}>
+                    <DropdownItem key={key} onClick={() => handleSelect(key)}>
                         {t.name}
-                    </Option>
+                    </DropdownItem>
                 ))}
-            </Select>
+            </Dropdown>
         </Wrapper>
     );
 };

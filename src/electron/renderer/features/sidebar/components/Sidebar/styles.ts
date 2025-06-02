@@ -9,6 +9,10 @@ type ContainerProps = {
     expanded?: boolean;
 };
 
+type SidebarTitleProps = {
+    expanded?: boolean;
+};
+
 export const Container = styled.div<ContainerProps>`
     height: 100%;
     width: 100%;
@@ -91,11 +95,25 @@ export const HeaderRow = styled.div`
     align-items: center;
     gap: 8px; /* space between title & button */
     padding: 16px; /* optional, match your TopSection padding */
+    justify-content: center;
 `;
 
-export const SidebarTitle = styled.h2`
-    margin: 0;
+export const SidebarTitle = styled.h2<SidebarTitleProps>`
+    min-width: 0px;
+    margin: 0 auto;
     font-size: 1rem;
     font-weight: 600;
+    justify-content: start;
+    align-items: center;
+    text-align: center;
+    display: flex;
     color: ${({ theme }) => theme.colors.text};
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    max-width: ${({ expanded }) => (expanded ? '100%' : '0')};
+    opacity: ${({ expanded }) => (expanded ? 1 : 0)};
+    visibility: ${({ expanded }) => (expanded ? 'visible' : 'hidden')};
+
+    transition: all 0.2s ease;
 `;

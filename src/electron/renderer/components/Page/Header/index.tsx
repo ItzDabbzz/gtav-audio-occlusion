@@ -21,7 +21,7 @@ export const Header = ({ title, optionalText, options }: HeaderProps): JSX.Eleme
         <Container>
             <Left>
                 <Title>
-                    {title}
+                    {title && title}
                     {optionalText && <span>{optionalText}</span>}
                 </Title>
             </Left>

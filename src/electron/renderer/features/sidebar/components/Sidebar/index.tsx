@@ -7,6 +7,7 @@ import { ExpandButton } from '../ExpandButton';
 
 import { Container, TopSection, BottomSection, SectionLink, HeaderRow, SidebarTitle } from './styles';
 import { ThemeSwitcher } from '@/electron/renderer/components/ThemeSwitcher';
+import { expand } from '../../../../../../../jest.config';
 
 type Routes = ReturnType<typeof getActiveRoutes>;
 
@@ -32,14 +33,14 @@ export const Sidebar = (): JSX.Element => {
         <Container expanded={expanded}>
             <TopSection>
                 <HeaderRow>
-                    <SidebarTitle>Audio Occlusion Tool</SidebarTitle>
+                    <SidebarTitle expanded={expanded}>Audio Occlusion Tool</SidebarTitle>
                 </HeaderRow>
 
-                <ThemeSwitcher expanded={expanded} />
                 {renderRoutes(top, pathname)}
             </TopSection>
 
             <BottomSection>
+                <ThemeSwitcher expanded={expanded} />
                 <ExpandButton expanded={expanded} onClick={() => setExpanded(e => !e)} />
                 {renderRoutes(bottom, pathname)}
             </BottomSection>

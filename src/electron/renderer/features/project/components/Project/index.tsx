@@ -8,7 +8,18 @@ import { CreateModal } from '../CreateModal';
 import { ProjectFileImporter } from '../ProjectFileImporter';
 import { AddInteriorModal } from '../AddInteriorModal';
 import { useState } from 'react';
-import { ProjectHistoryContainer, ProjectHistoryTitle, ProjectHistoryList, ProjectHistoryItem, ProjectHistoryPath, ProjectHistoryButton, ProjectHistoryName, ProjectHistoryRemoveButton, AddInteriorButton, RemoveInteriorButton } from './styles';
+import {
+    ProjectHistoryContainer,
+    ProjectHistoryTitle,
+    ProjectHistoryList,
+    ProjectHistoryItem,
+    ProjectHistoryPath,
+    ProjectHistoryButton,
+    ProjectHistoryName,
+    ProjectHistoryRemoveButton,
+    AddInteriorButton,
+    RemoveInteriorButton,
+} from './styles';
 import { useSettings } from '../../../settings/context';
 
 export const Project = (): JSX.Element => {
@@ -68,7 +79,7 @@ export const Project = (): JSX.Element => {
         <>
             <Container>
                 <Header
-                    title={state ? `"${state.name}"` : 'gtav-audio-occlusion'}
+                    title={state ? `"${state.name}"` : ''}
                     optionalText={
                         state
                             ? `${state.interiors.length} ${state.interiors.length > 1 ? 'Interiors' : 'Interior'} added`
@@ -100,15 +111,16 @@ export const Project = (): JSX.Element => {
                 )}
                 {state ? (
                     <Content>
-                        <AddInteriorButton onClick={() => setAddInteriorOpen(true)}>
-                            + Add Interior
-                        </AddInteriorButton>
+                        <AddInteriorButton onClick={() => setAddInteriorOpen(true)}>+ Add Interior</AddInteriorButton>
                         {state.interiors.map((interior, index) => (
-                            <Interior key={interior.identifier} index={index} name={interior.identifier} identifier={interior.identifier}>
+                            <Interior
+                                key={interior.identifier}
+                                index={index}
+                                name={interior.identifier}
+                                identifier={interior.identifier}
+                            >
                                 <InteriorDetails interior={interior} />
-                                <RemoveInteriorButton
-                                    onClick={() => handleRemove(interior.identifier)}
-                                >
+                                <RemoveInteriorButton onClick={() => handleRemove(interior.identifier)}>
                                     Remove Interior
                                 </RemoveInteriorButton>
                             </Interior>
