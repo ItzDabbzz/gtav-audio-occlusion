@@ -93,3 +93,4 @@ $ yarn start
 
 - [Nikez](https://github.com/nikez) for the initial documentation about audio occlusion.
 - [appricotflower821](https://github.com/tangerinenuistance5) for the rage.re research and the path nodes original algorithm.
+- [pedr0fontoura](https://github.com/pedr0fontoura) for the original gtav-audio-occlusion project
